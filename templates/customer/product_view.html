@@ -1,0 +1,202 @@
+{% extends "layout/base_user.html" %} {% block content %}
+<div class="container mt-5">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('customer.shop') }}">Shop</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ product.title }}
+      </li>
+    </ol>
+  </nav>
+
+  <div class="row">
+    <div class="col-md-5 mb-4">
+      <div class="card shadow-sm border-0">
+        {% if product.image %} {% set clean_filename =
+        product.image.split('\\')[-1].split('/')[-1] %}
+        <img
+          src="{{ url_for('static', filename='img/' + clean_filename) }}"
+          class="img-fluid rounded"
+          alt="{{ product.title }}"
+        />
+        {% else %}
+        <img
+          src="{{ url_for('static', filename='img/default-book.png') }}"
+          class="img-fluid rounded"
+          alt="Default Image"
+        />
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-md-7">
+      <h1 class="display-5 fw-bold">{{ product.title }}</h1>
+      <p class="lead text-muted mb-4">By {{ product.author }}</p>
+
+      <div class="mb-3">
+        <span class="badge bg-info text-dark px-3 py-2"
+          >{{ product.category_name }}</span
+        >
+
+        {# Ensure stock is treated as an integer for comparison #} {% set
+        stock_level = product.stock|int %}
+        <span
+          class="ms-2 text-{% if stock_level > 0 %}success{% else %}danger{% endif %} fw-bold"
+        >
+          {% if stock_level > 0 %}
+          <i class="bi bi-check-circle-fill"></i> In Stock ({{ stock_level }}
+          available) {% else %} <i class="bi bi-x-circle-fill"></i> Out of Stock
+          {% endif %}
+        </span>
+      </div>
+
+      <h2 class="text-primary my-4 fw-bold">
+        ₱{{ "%.2f"|format(product.price) }}
+      </h2>
+
+      <div class="card bg-light border-0 mb-4 shadow-sm">
+        <div class="card-body p-4">
+          <h5 class="card-title fw-bold">Description</h5>
+          <p class="card-text text-secondary">{{ product.description }}</p>
+        </div>
+      </div>
+
+      <form
+        class="ajax-cart-form"
+        method="POST"
+        action="{{ url_for('customer.add_to_cart') }}"
+      >
+        <input
+          type="hidden"
+          name="product_id"
+          value="{{ product.product_id }}"
+        />
+
+        <div class="row g-3 align-items-center">
+          <div class="col-auto">
+            <label for="quantity" class="form-label mb-0 fw-bold"
+              >Quantity:</label
+            >
+          </div>
+          <div class="col-auto">
+  <input
+    type="number"
+    name="quantity"
+    id="quantity"
+    class="form-control text-center shadow-sm"
+    value="1"
+    min="1"
+    max="{{ stock_level }}"
+    {# FIXED: Removed quotes from 0 and added |int check #}
+    {% if stock_level <= 0 %}disabled{% endif %}
+    style="width: 100px"
+    required
+  />
+</div>
+
+<div class="col-auto flex-grow-1">
+  <button
+    type="submit"
+    {# FIXED: Comparison logic updated #}
+    class="btn {% if stock_level > 0 %}btn-success{% else %}btn-secondary{% endif %} btn-lg w-100 shadow-sm"
+    {% if stock_level <= 0 %}disabled{% endif %}
+  >
+    <i class="bi bi-cart-plus me-2"></i>
+    {% if stock_level > 0 %}Add to Cart{% else %}Sold Out{% endif %}
+  </button>
+</div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content text-center border-0 shadow-lg">
+      <div class="modal-body p-4">
+        <i
+          class="bi bi-check-circle-fill text-success"
+          style="font-size: 3.5rem"
+        ></i>
+        <h5 class="fw-bold mt-3">Success!</h5>
+        <p class="text-muted small">Item added to your cart.</p>
+        <div class="d-grid gap-2 mt-3">
+          <button
+            type="button"
+            class="btn btn-light btn-sm"
+            data-bs-dismiss="modal"
+          >
+            Continue
+          </button>
+          <a
+            href="{{ url_for('customer.view_cart') }}"
+            class="btn btn-primary btn-sm"
+            >Go to Cart</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll(".ajax-cart-form").forEach((form) => {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+
+      // 1. Disable button and show spinner
+      submitBtn.disabled = true;
+      submitBtn.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+
+      const formData = new FormData(this);
+
+      fetch(this.action, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+        })
+        .then((data) => {
+          if (data.success) {
+            // 2. Show Success Modal
+            var myModal = new bootstrap.Modal(
+              document.getElementById("cartModal")
+            );
+            myModal.show();
+
+            // 3. Update Navbar Badge
+            const badge = document.getElementById("cart-badge");
+            if (badge && data.cart_count !== undefined) {
+              badge.innerText = data.cart_count;
+              badge.classList.remove("d-none");
+            }
+          } else {
+            // 4. Handle logical errors (e.g., out of stock, not logged in)
+            alert(data.message || "Error adding to cart.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An unexpected error occurred. Please try again.");
+        })
+        .finally(() => {
+          // 5. Always re-enable button and restore text
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        });
+    });
+  });
+</script>
+{% endblock %}
