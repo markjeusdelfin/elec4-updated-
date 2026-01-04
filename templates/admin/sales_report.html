@@ -1,52 +1,40 @@
-{% extends "layout/base_admin.html" %} {% block title %}Admin | Sales Report{%
-endblock %} {% block content %}
-<div class="container mt-4">
+{% extends "layout/base_admin.html" %}
+{% block title %}Sales Report | Paper Haven{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-graph-up text-primary me-2"></i>Sales Reports</h2>
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item">
-          <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">Sales Report</li>
-      </ol>
-    </nav>
+    <div>
+      <h2 class="mb-1"><i class="bi bi-graph-up me-2" style="color: var(--accent-brown);"></i>Sales Reports</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 small">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none"
+              style="color: var(--accent-brown);">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Sales Report</li>
+        </ol>
+      </nav>
+    </div>
   </div>
 
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body d-flex justify-content-between align-items-center">
       <div class="btn-group" role="group">
-        <a
-          href="{{ url_for('admin.sales_report', period='daily') }}"
-          class="btn btn-outline-primary {{ 'active' if period == 'daily' }}"
-          >Daily</a
-        >
-        <a
-          href="{{ url_for('admin.sales_report', period='weekly') }}"
-          class="btn btn-outline-primary {{ 'active' if period == 'weekly' }}"
-          >Weekly</a
-        >
-        <a
-          href="{{ url_for('admin.sales_report', period='monthly') }}"
-          class="btn btn-outline-primary {{ 'active' if period == 'monthly' }}"
-          >Monthly</a
-        >
+        <a href="{{ url_for('admin.sales_report', period='daily') }}"
+          class="btn btn-outline-primary {{ 'active' if period == 'daily' }}">Daily</a>
+        <a href="{{ url_for('admin.sales_report', period='weekly') }}"
+          class="btn btn-outline-primary {{ 'active' if period == 'weekly' }}">Weekly</a>
+        <a href="{{ url_for('admin.sales_report', period='monthly') }}"
+          class="btn btn-outline-primary {{ 'active' if period == 'monthly' }}">Monthly</a>
       </div>
 
       <div class="dropdown">
-        <button
-          class="btn btn-danger dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-        >
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
           <i class="bi bi-download me-1"></i> Export Report
         </button>
         <ul class="dropdown-menu">
           <li>
-            <a
-              class="dropdown-menu-item p-2 text-decoration-none text-dark d-block"
-              href="{{ url_for('admin.sales_report', period=period, export='pdf') }}"
-            >
+            <a class="dropdown-item" href="{{ url_for('admin.sales_report', period=period, export='pdf') }}">
               <i class="bi bi-file-earmark-pdf text-danger me-2"></i>Save as PDF
             </a>
           </li>
@@ -57,16 +45,13 @@ endblock %} {% block content %}
 
   <div class="row">
     <div class="col-md-8">
-      <div class="card mb-4 border-0 shadow-sm bg-primary text-white h-100">
-        <div class="card-body py-4 d-flex flex-column justify-content-center">
+      <div class="card mb-4 border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8B7355, #A68B5B);">
+        <div class="card-body py-4 d-flex flex-column justify-content-center text-white">
           <h5 class="opacity-75">Total Revenue ({{ period.capitalize() }})</h5>
           <h1 class="display-3 fw-bold mb-0">
             ₱{{ "%.2f"|format(total_sales) }}
           </h1>
-          <small class="mt-2 text-white-50"
-            >Generated on {{ now.strftime('%Y-%m-%d %H:%M') if now else 'Today'
-            }}</small
-          >
+          <small class="mt-2 opacity-50">Generated on {{ now.strftime('%Y-%m-%d %H:%M') if now else 'Today' }}</small>
         </div>
       </div>
     </div>
@@ -83,16 +68,33 @@ endblock %} {% block content %}
           </div>
           <hr />
           <div class="d-flex justify-content-between mb-2">
-            <span>Completed</span>
+            <span>Delivered</span>
             <span class="badge bg-success-soft text-success">
-              {{ sales|selectattr('status', 'equalto', 'Completed')|list|length
-              }}
+              {{ sales|selectattr('status', 'equalto', 'Delivered')|list|length }}
             </span>
           </div>
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Shipped</span>
+            <span class="badge bg-info-soft text-info">
+              {{ sales|selectattr('status', 'equalto', 'Shipped')|list|length }}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Approved</span>
+            <span class="badge bg-primary-soft text-primary">
+              {{ sales|selectattr('status', 'equalto', 'Approved')|list|length }}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
             <span>Pending</span>
             <span class="badge bg-warning-soft text-warning">
               {{ sales|selectattr('status', 'equalto', 'Pending')|list|length }}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Declined</span>
+            <span class="badge bg-danger-soft text-danger">
+              {{ sales|selectattr('status', 'equalto', 'Declined')|list|length }}
             </span>
           </div>
         </div>
@@ -122,16 +124,18 @@ endblock %} {% block content %}
             <td>{{ row.order_date.strftime('%b %d, %Y') }}</td>
             <td>{{ row.customer_name }}</td>
             <td>
-              {% if row.status == 'Completed' %}
-              <span class="badge rounded-pill bg-success">Completed</span>
+              {% if row.status == 'Delivered' %}
+              <span class="badge rounded-pill bg-success">Delivered</span>
+              {% elif row.status == 'Shipped' %}
+              <span class="badge rounded-pill bg-info">Shipped</span>
+              {% elif row.status == 'Approved' %}
+              <span class="badge rounded-pill bg-primary">Approved</span>
               {% elif row.status == 'Pending' %}
-              <span class="badge rounded-pill bg-warning text-dark"
-                >Pending</span
-              >
+              <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+              {% elif row.status == 'Declined' %}
+              <span class="badge rounded-pill bg-danger">Declined</span>
               {% else %}
-              <span class="badge rounded-pill bg-secondary"
-                >{{ row.status }}</span
-              >
+              <span class="badge rounded-pill bg-secondary">{{ row.status }}</span>
               {% endif %}
             </td>
             <td class="text-end pe-4 fw-bold">
@@ -141,9 +145,7 @@ endblock %} {% block content %}
           {% else %}
           <tr>
             <td colspan="5" class="text-center py-5">
-              <i
-                class="bi bi-file-earmark-x display-4 text-muted d-block mb-2"
-              ></i>
+              <i class="bi bi-file-earmark-x display-4 text-muted d-block mb-2"></i>
               <p class="text-muted">
                 No sales recorded for the selected period.
               </p>
@@ -161,9 +163,23 @@ endblock %} {% block content %}
   .bg-success-soft {
     background-color: #e8f5e9;
   }
+
   .bg-warning-soft {
     background-color: #fff8e1;
   }
+
+  .bg-info-soft {
+    background-color: #e0f7fa;
+  }
+
+  .bg-primary-soft {
+    background-color: #e3f2fd;
+  }
+
+  .bg-danger-soft {
+    background-color: #ffebee;
+  }
+
   .table-hover tbody tr:hover {
     background-color: #fbfbfc;
   }

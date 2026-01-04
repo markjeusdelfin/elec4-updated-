@@ -1,4 +1,217 @@
-{% extends "layout/base_admin.html" %} {% block content %}
-<h1>Admin Dashboard</h1>
-<p>Welcome, {{ session.get('user_name') }}!</p>
+{% extends "layout/base_admin.html" %}
+{% block title %}Dashboard | Paper Haven{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Welcome back, {{ session.get('user_name', 'Admin') }}!</h2>
+            <p class="text-muted mb-0">Here's what's happening with your bookstore today.</p>
+        </div>
+        <div class="text-muted small">
+            <i class="bi bi-calendar3 me-1"></i>
+            <span id="currentDate"></span>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total Products</p>
+                            <h3 class="mb-0 fw-bold">--</h3>
+                        </div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #8B7355, #A68B5B);">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total Orders</p>
+                            <h3 class="mb-0 fw-bold">--</h3>
+                        </div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4CAF50, #66BB6A);">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Pending Orders</p>
+                            <h3 class="mb-0 fw-bold">--</h3>
+                        </div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800, #FFB74D);">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total Customers</p>
+                            <h3 class="mb-0 fw-bold">--</h3>
+                        </div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #2196F3, #64B5F6);">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('product.add_product') }}" class="quick-action-card">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>Add New Product</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin.process_orders') }}" class="quick-action-card">
+                                <i class="bi bi-receipt"></i>
+                                <span>View Orders</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin.sales_report') }}" class="quick-action-card">
+                                <i class="bi bi-graph-up"></i>
+                                <span>Sales Report</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('category.add_category') }}" class="quick-action-card">
+                                <i class="bi bi-folder-plus"></i>
+                                <span>Add Category</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin.manage_users') }}" class="quick-action-card">
+                                <i class="bi bi-people"></i>
+                                <span>Manage Users</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin.manage_products') }}" class="quick-action-card">
+                                <i class="bi bi-box-seam"></i>
+                                <span>View Products</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>System Info</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Version</span>
+                            <span class="fw-medium">1.0.0</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Framework</span>
+                            <span class="fw-medium">Flask</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Database</span>
+                            <span class="fw-medium">MySQL</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2">
+                            <span class="text-muted">Status</span>
+                            <span class="badge bg-success">Online</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .quick-action-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem 1rem;
+        background-color: var(--primary-cream);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        gap: 0.75rem;
+    }
+
+    .quick-action-card:hover {
+        background-color: var(--accent-brown);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(139, 115, 85, 0.2);
+    }
+
+    .quick-action-card i {
+        font-size: 1.5rem;
+    }
+
+    .quick-action-card span {
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-align: center;
+    }
+</style>
+
+<script>
+    // Display current date
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+</script>
 {% endblock %}

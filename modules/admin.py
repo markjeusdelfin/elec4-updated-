@@ -23,7 +23,47 @@ def dashboard():
 @admin_bp.route('/products')
 @admin_required
 def manage_products():
-    return render_template('admin/manage_products.html')
+    search = request.args.get('search', '').strip()
+    category_id = request.args.get('category_id', 'all')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Fetch categories for filter dropdown
+        cursor.execute("SELECT * FROM categories ORDER BY category_name ASC")
+        categories = cursor.fetchall()
+        
+        # Build query with filters
+        query = """
+            SELECT p.*, c.category_name 
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.category_id 
+            WHERE 1=1
+        """
+        params = []
+        
+        if search:
+            query += " AND (p.title LIKE %s OR p.author LIKE %s)"
+            params.extend([f"%{search}%", f"%{search}%"])
+        
+        if category_id and category_id != "all":
+            query += " AND p.category_id = %s"
+            params.append(category_id)
+        
+        query += " ORDER BY p.product_id ASC"
+        cursor.execute(query, tuple(params))
+        products = cursor.fetchall()
+        
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('admin/manage_products.html', 
+                           products=products, 
+                           categories=categories,
+                           selected_category=category_id,
+                           search=search)
 
 
 # ==================================================
@@ -32,7 +72,28 @@ def manage_products():
 @admin_bp.route('/categories')
 @admin_required
 def manage_categories():
-    return render_template('admin/manage_categories.html')
+    search = request.args.get('search', '').strip()
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        if search:
+            cursor.execute("""
+                SELECT * FROM categories
+                WHERE category_name LIKE %s OR description LIKE %s
+                ORDER BY created_at ASC
+            """, (f"%{search}%", f"%{search}%"))
+        else:
+            cursor.execute("SELECT * FROM categories ORDER BY created_at ASC")
+        
+        categories = cursor.fetchall()
+        
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('admin/manage_categories.html', categories=categories, search=search)
 
 
 # ==================================================
@@ -41,7 +102,152 @@ def manage_categories():
 @admin_bp.route('/orders')
 @admin_required
 def process_orders():
-    return render_template('admin/process_orders.html')
+    status_filter = request.args.get('status', 'all')
+    search_query = request.args.get('search', '').strip()
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Build query with filters
+    query = """
+        SELECT o.*, u.name as customer_name, u.email as customer_email
+        FROM orders o
+        JOIN users u ON o.user_id = u.user_id
+        WHERE 1=1
+    """
+    params = []
+    
+    if status_filter != 'all':
+        query += " AND o.status = %s"
+        params.append(status_filter)
+    
+    if search_query:
+        query += " AND (u.name LIKE %s OR u.email LIKE %s OR o.order_id LIKE %s)"
+        search_param = f"%{search_query}%"
+        params.extend([search_param, search_param, search_param])
+    
+    query += " ORDER BY o.order_date DESC"
+    
+    cursor.execute(query, params)
+    orders = cursor.fetchall()
+    
+    # Fetch order items for each order
+    order_details = {}
+    for order in orders:
+        cursor.execute("""
+            SELECT oi.*, p.title, p.image 
+            FROM order_items oi 
+            JOIN products p ON oi.product_id = p.product_id 
+            WHERE oi.order_id = %s
+        """, (order['order_id'],))
+        order_details[order['order_id']] = cursor.fetchall()
+    
+    # Get counts for status tabs
+    cursor.execute("SELECT status, COUNT(*) as count FROM orders GROUP BY status")
+    status_counts = {row['status']: row['count'] for row in cursor.fetchall()}
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('admin/process_orders.html', 
+                           orders=orders, 
+                           order_details=order_details,
+                           status_filter=status_filter,
+                           search_query=search_query,
+                           status_counts=status_counts)
+
+
+@admin_bp.route('/order/<int:order_id>/approve', methods=['POST'])
+@admin_required
+def approve_order(order_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("UPDATE orders SET status = 'Approved' WHERE order_id = %s AND status = 'Pending'", (order_id,))
+        conn.commit()
+        flash(f"Order #{order_id} has been approved.", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error approving order: {str(e)}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('admin.process_orders'))
+
+
+@admin_bp.route('/order/<int:order_id>/decline', methods=['POST'])
+@admin_required
+def decline_order(order_id):
+    decline_reason = request.form.get('decline_reason', 'No reason provided')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get order items to restore stock
+        cursor.execute("SELECT product_id, quantity FROM order_items WHERE order_id = %s", (order_id,))
+        items = cursor.fetchall()
+        
+        # Restore stock
+        for item in items:
+            cursor.execute("UPDATE products SET stock = stock + %s WHERE product_id = %s", 
+                          (item['quantity'], item['product_id']))
+        
+        # Update order status
+        cursor.execute("UPDATE orders SET status = 'Declined', decline_reason = %s WHERE order_id = %s", 
+                      (decline_reason, order_id))
+        conn.commit()
+        flash(f"Order #{order_id} has been declined.", "warning")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error declining order: {str(e)}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('admin.process_orders'))
+
+
+@admin_bp.route('/order/<int:order_id>/ship', methods=['POST'])
+@admin_required
+def ship_order(order_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("UPDATE orders SET status = 'Shipped' WHERE order_id = %s AND status = 'Approved'", (order_id,))
+        conn.commit()
+        flash(f"Order #{order_id} has been marked as shipped.", "info")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error updating order: {str(e)}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('admin.process_orders'))
+
+
+@admin_bp.route('/order/<int:order_id>/deliver', methods=['POST'])
+@admin_required
+def deliver_order(order_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("UPDATE orders SET status = 'Delivered' WHERE order_id = %s AND status = 'Shipped'", (order_id,))
+        conn.commit()
+        flash(f"Order #{order_id} has been marked as delivered.", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error updating order: {str(e)}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('admin.process_orders'))
 
 
 # ==================================================

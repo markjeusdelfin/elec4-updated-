@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paper Haven - Your Curated Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-cream: #F8F5F0;
+            --primary-beige: #F5F1EB;
+            --accent-brown: #8B7355;
+            --accent-brown-hover: #7A6548;
+            --accent-brown-light: rgba(139, 115, 85, 0.1);
+            --text-dark: #2D2A26;
+            --text-muted: #6B6560;
+            --border-light: #E8E4DE;
+            --white: #FFFFFF;
+            --max-width: 1200px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--primary-cream);
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: auto;
+            padding: 0 2rem;
+        }
+
+        /* ============================================
+       NAVBAR
+    ============================================ */
+        header {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: box-shadow 0.3s ease;
+        }
+
+        header.scrolled {
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo i {
+            color: var(--accent-brown);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-actions a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn {
+            color: var(--text-muted);
+        }
+
+        .login-btn:hover {
+            color: var(--text-dark);
+            background-color: var(--accent-brown-light);
+        }
+
+        .register-btn {
+            background-color: var(--accent-brown);
+            color: white;
+        }
+
+        .register-btn:hover {
+            background-color: var(--accent-brown-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
+        }
+
+        /* ============================================
+       HERO SECTION
+    ============================================ */
+        .hero {
+            padding: 5rem 0 3rem;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .hero h1 span {
+            color: var(--accent-brown);
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 480px;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-primary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--accent-brown);
+            color: white;
+            padding: 0.9rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--accent-brown-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 115, 85, 0.35);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: transparent;
+            border: 2px solid var(--accent-brown);
+            color: var(--accent-brown);
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn-outline-custom:hover {
+            background-color: var(--accent-brown);
+            color: white;
+        }
+
+        .hero-visual-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .hero-image {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s ease;
+            border: 1px solid var(--border-light);
+        }
+
+        .hero-image:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .hero-image img {
+            height: 320px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .hero-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .hero-info-box {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .hero-info-box:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .hero-info-box i {
+            font-size: 1.5rem;
+            color: var(--accent-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-info-box h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .hero-info-box span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* ============================================
+       FEATURED SECTION
+    ============================================ */
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .section-link {
+            color: var(--accent-brown);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .section-link:hover {
+            gap: 0.5rem;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .book-card {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: all 0.35s ease;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .book-card img {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .book-info {
+            padding: 1.25rem;
+        }
+
+        .book-info h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .book-info .price {
+            color: var(--accent-brown);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .book-info .review {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.75rem;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* ============================================
+       WHY CHOOSE US
+    ============================================ */
+        .features-section {
+            background-color: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 4rem;
+            margin: 2rem 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background-color: var(--accent-brown-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .feature-icon i {
+            font-size: 1.75rem;
+            color: var(--accent-brown);
+        }
+
+        .feature-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ============================================
+       FOOTER
+    ============================================ */
+        footer {
+            background-color: var(--white);
+            border-top: 1px solid var(--border-light);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        footer a {
+            color: var(--accent-brown);
+            text-decoration: none;
+        }
+
+        /* ============================================
+       SCROLLBAR
+    ============================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-cream);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-brown);
+        }
+
+        /* ============================================
+       RESPONSIVE
+    ============================================ */
+        @media (max-width: 992px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .book-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .features-section {
+                padding: 2.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .book-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-outline-custom {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+
+            .nav-actions a {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header id="mainHeader">
+        <div class="container nav">
+            <a href="/" class="logo">
+                <i class="bi bi-book-half"></i>
+                Paper Haven
+            </a>
+            <div class="nav-actions">
+                <a href="{{ url_for('auth.login') }}" class="login-btn">Login</a>
+                <a href="{{ url_for('auth.register') }}" class="register-btn">Register</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero container">
+        <div class="hero-grid">
+            <div>
+                <h1>Discover Your Next <span>Favorite Book</span></h1>
+                <p>
+                    From academic literature to essential resources, Paper Haven connects students and book lovers with
+                    curated collections at the best prices.
+                </p>
+                <div>
+                    <a href="{{ url_for('customer.shop') }}" class="btn-primary-custom">
+                        <i class="bi bi-bag"></i> Shop Now
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="btn-outline-custom">
+                        <i class="bi bi-person-plus"></i> Get Started
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-visual-wrapper">
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800" alt="Books collection">
+                </div>
+
+                <div class="hero-info-grid">
+                    <div class="hero-info-box">
+                        <i class="bi bi-tag"></i>
+                        <h4>Best Prices</h4>
+                        <span>Fair pricing for all</span>
+                    </div>
+                    <div class="hero-info-box">
+                        <i class="bi bi-shield-check"></i>
+                        <h4>Trusted Sellers</h4>
+                        <span>Verified partners</span>
+                    </div>
+                    <div class="hero-info-box">
+                        <i class="bi bi-lightning"></i>
+                        <h4>Fast Delivery</h4>
+                        <span>Quick access</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED BOOKS -->
+    <section class="section container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Books</h2>
+            <a href="{{ url_for('customer.shop') }}" class="section-link">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="book-grid">
+            <div class="book-card">
+                <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400"
+                    alt="Introduction to Algorithms">
+                <div class="book-info">
+                    <h4>Introduction to Algorithms</h4>
+                    <span class="price">₱2,350.00</span>
+                    <p class="review">"This book really helped me understand complex concepts easily!" - Alex</p>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <img src="https://images.unsplash.com/photo-1555529669-413811fbf24f?w=400" alt="Clean Code">
+                <div class="book-info">
+                    <h4>Clean Code</h4>
+                    <span class="price">₱1,950.00</span>
+                    <p class="review">"A must-have for anyone serious about coding." - Jamie</p>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <img src="https://images.unsplash.com/photo-1581092795363-3a031c97efb5?w=400" alt="Design Patterns">
+                <div class="book-info">
+                    <h4>Design Patterns</h4>
+                    <span class="price">₱2,500.00</span>
+                    <p class="review">"Excellent reference book for software architecture." - Maria</p>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400"
+                    alt="Artificial Intelligence">
+                <div class="book-info">
+                    <h4>Artificial Intelligence</h4>
+                    <span class="price">₱3,000.00</span>
+                    <p class="review">"Helped me ace my AI course!" - Daniel</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY CHOOSE US -->
+    <div class="container">
+        <section class="features-section">
+            <h2 class="section-title" style="text-align: center;">Why Choose Paper Haven?</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <h3>Curated Selection</h3>
+                    <p>Carefully handpicked books across various genres and academic disciplines to meet every reader's
+                        needs.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <h3>Affordable Prices</h3>
+                    <p>We believe knowledge should be accessible. Enjoy competitive prices on all our books.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-headset"></i>
+                    </div>
+                    <h3>Excellent Support</h3>
+                    <p>Our dedicated team is here to help you find the perfect book and assist with any questions.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 <strong>Paper Haven</strong>. Curated books for every reader.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add scroll effect to header
+        window.addEventListener('scroll', function () {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

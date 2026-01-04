@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from modules.auth import auth_bp
 from modules.admin import admin_bp
 from modules.customer import customer_bp
@@ -8,6 +8,10 @@ import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"  # Change this in production!
+
+@app.route('/')
+def landing():
+    return render_template('index.html')
 
 
 # File Upload Config

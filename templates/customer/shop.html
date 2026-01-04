@@ -163,8 +163,7 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          var myModal = new bootstrap.Modal(document.getElementById('cartModal'));
-          myModal.show();
+          var myModal = new bootstrap.Modal(document.getElementById('cartModal')); myModal.show(); const badge = document.getElementById('cartBadge'); if (badge && data.cart_count !== undefined) { badge.innerText = data.cart_count; badge.style.display = 'inline-block'; }
         } else {
           alert(data.message || "Error adding to cart.");
         }

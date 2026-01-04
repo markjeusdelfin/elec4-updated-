@@ -10,6 +10,25 @@ customer_bp = Blueprint('customer', __name__, template_folder='../templates')
 def is_customer():
     return 'user_id' in session and session.get('role') == 'customer'
 
+# --- GET CART COUNT (for navbar badge) ---
+@customer_bp.route('/get_cart_count')
+def get_cart_count():
+    if not session.get('user_id'):
+        return jsonify({'count': 0})
+    
+    user_id = session.get('user_id')
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("SELECT SUM(quantity) as total FROM cart WHERE user_id = %s", (user_id,))
+    result = cursor.fetchone()
+    
+    cursor.close()
+    conn.close()
+    
+    count = int(result['total']) if result['total'] else 0
+    return jsonify({'count': count})
+
 @customer_bp.route('/home')
 def home():
    

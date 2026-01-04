@@ -1,97 +1,454 @@
-<link
-  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-  rel="stylesheet"
-/>
-<div class="row justify-content-center">
-  <div class="col-md-5">
-    <h3>Register</h3>
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %} {% for category, message in messages %}
-    <div
-      class="alert alert-{{ category }} alert-dismissible fade show"
-      role="alert"
-    >
-      {{ message }}
-      <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="alert"
-        aria-label="Close"
-      ></button>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | Paper Haven</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary-cream: #F8F5F0;
+      --primary-beige: #F5F1EB;
+      --accent-brown: #8B7355;
+      --accent-brown-hover: #7A6548;
+      --text-dark: #2D2A26;
+      --text-muted: #6B6560;
+      --border-light: #E8E4DE;
+      --white: #FFFFFF;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--primary-cream);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .auth-container {
+      display: flex;
+      width: 100%;
+      max-width: 1100px;
+      background: var(--white);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.08);
+    }
+
+    .auth-left {
+      flex: 0 0 40%;
+      background: linear-gradient(135deg, #8B7355 0%, #A68B5B 50%, #C4A574 100%);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-left::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+    }
+
+    .auth-left::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -30%;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+    }
+
+    .auth-left-content {
+      position: relative;
+      z-index: 1;
+      color: white;
+    }
+
+    .auth-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .auth-left p {
+      font-size: 1rem;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    .auth-left .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .auth-left .brand i {
+      font-size: 2rem;
+    }
+
+    .auth-left .brand span {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .auth-features {
+      margin-top: 2.5rem;
+    }
+
+    .auth-feature {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .auth-feature i {
+      font-size: 1.25rem;
+    }
+
+    .auth-right {
+      flex: 1;
+      padding: 2.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-height: 100vh;
+      overflow-y: auto;
+    }
+
+    .auth-right h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-right .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .form-control,
+    .form-select {
+      border: 1.5px solid var(--border-light);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      background-color: var(--primary-cream);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--accent-brown);
+      box-shadow: 0 0 0 4px rgba(139, 115, 85, 0.1);
+      background-color: var(--white);
+    }
+
+    .form-control::placeholder {
+      color: #B5B0A8;
+    }
+
+    textarea.form-control {
+      resize: none;
+    }
+
+    .input-group-text {
+      background-color: var(--primary-cream);
+      border: 1.5px solid var(--border-light);
+      border-right: none;
+      border-radius: 10px 0 0 10px;
+      color: var(--text-muted);
+      padding: 0.75rem 1rem;
+    }
+
+    .input-group .form-control {
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+    }
+
+    .input-group:focus-within .input-group-text {
+      border-color: var(--accent-brown);
+      background-color: var(--white);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-brown);
+      border: none;
+      border-radius: 10px;
+      padding: 0.8rem 1.5rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-brown-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(139, 115, 85, 0.3);
+    }
+
+    .auth-link {
+      color: var(--accent-brown);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .auth-link:hover {
+      color: var(--accent-brown-hover);
+      text-decoration: underline;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 1.25rem 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: var(--border-light);
+    }
+
+    .divider span {
+      padding: 0 1rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .alert-danger {
+      background-color: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .alert-success {
+      background-color: #D1FAE5;
+      color: #065F46;
+    }
+
+    .text-danger {
+      font-size: 0.8rem;
+    }
+
+    .row-cols-2>.col {
+      margin-bottom: 0.75rem;
+    }
+
+    .mb-3 {
+      margin-bottom: 0.75rem !important;
+    }
+
+    @media (max-width: 992px) {
+      .auth-container {
+        flex-direction: column;
+        max-height: none;
+      }
+
+      .auth-left {
+        flex: 0 0 auto;
+        padding: 2rem;
+      }
+
+      .auth-left h1 {
+        font-size: 1.5rem;
+      }
+
+      .auth-features {
+        display: none;
+      }
+
+      .auth-right {
+        padding: 2rem;
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-container">
+    <!-- Left Side - Branding -->
+    <div class="auth-left">
+      <div class="auth-left-content">
+        <div class="brand">
+          <i class="bi bi-book-half"></i>
+          <span>Paper Haven</span>
+        </div>
+        <h1>Join Our Community of Book Lovers</h1>
+        <p>Create your account and start exploring our curated collection of books.</p>
+
+        <div class="auth-features">
+          <div class="auth-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Free account creation</span>
+          </div>
+          <div class="auth-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Exclusive member discounts</span>
+          </div>
+          <div class="auth-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Order tracking & history</span>
+          </div>
+          <div class="auth-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Secure checkout process</span>
+          </div>
+        </div>
+      </div>
     </div>
-    {% endfor %} {% endif %} {% endwith %}
-    <form method="POST">
-      <div class="mb-3">
-        <label>Name</label>
-        <input
-          type="text"
-          name="name"
-          class="form-control"
-          value="{{ name|default('') }}"
-        />
-        {% if errors.name %}<small class="text-danger">{{ errors.name }}</small
-        >{% endif %}
-      </div>
 
-      <div class="mb-3">
-        <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          class="form-control"
-          value="{{ email|default('') }}"
-        />
-        {% if errors.email %}<small class="text-danger"
-          >{{ errors.email }}</small
-        >{% endif %}
-      </div>
+    <!-- Right Side - Register Form -->
+    <div class="auth-right">
+      <h2>Create Account</h2>
+      <p class="subtitle">Fill in your details to get started</p>
 
-      <div class="mb-3">
-        <label>Phone</label>
-        <input
-          type="text"
-          name="phone"
-          class="form-control"
-          value="{{ phone|default('') }}"
-        />
-        {% if errors.phone %}<small class="text-danger"
-          >{{ errors.phone }}</small
-        >{% endif %}
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show mb-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
 
-      <div class="mb-3">
-        <label>Address</label>
-        <textarea name="address" class="form-control" rows="2">
-{{ address|default('') }}</textarea
-        >
-        {% if errors.address %}<small class="text-danger"
-          >{{ errors.address }}</small
-        >{% endif %}
-      </div>
+      <form method="POST">
+        <div class="row row-cols-1 row-cols-md-2">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" name="name" class="form-control" placeholder="John Doe"
+                  value="{{ name|default('') }}">
+              </div>
+              {% if errors and errors.name %}<small class="text-danger">{{ errors.name }}</small>{% endif %}
+            </div>
+          </div>
 
-      <div class="mb-3">
-        <label>Password</label>
-        <input type="password" name="password" class="form-control" />
-        {% if errors.password %}<small class="text-danger"
-          >{{ errors.password }}</small
-        >{% endif %}
-      </div>
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" name="email" class="form-control" placeholder="john@example.com"
+                  value="{{ email|default('') }}">
+              </div>
+              {% if errors and errors.email %}<small class="text-danger">{{ errors.email }}</small>{% endif %}
+            </div>
+          </div>
 
-      <div class="mb-3">
-        <label>Confirm Password</label>
-        <input type="password" name="confirm_password" class="form-control" />
-        {% if errors.confirm_password %}<small class="text-danger"
-          >{{ errors.confirm_password }}</small
-        >{% endif %}
-      </div>
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">Phone Number</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                <input type="text" name="phone" class="form-control" placeholder="+63 9XX XXX XXXX"
+                  value="{{ phone|default('') }}">
+              </div>
+              {% if errors and errors.phone %}<small class="text-danger">{{ errors.phone }}</small>{% endif %}
+            </div>
+          </div>
 
-      <button class="btn btn-primary w-100">Register</button>
-      <p class="mt-2">
-        Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
-      </p>
-    </form>
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">Address</label>
+              <input type="text" name="address" class="form-control" placeholder="City, Province"
+                value="{{ address|default('') }}">
+              {% if errors and errors.address %}<small class="text-danger">{{ errors.address }}</small>{% endif %}
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input type="password" name="password" class="form-control" placeholder="Create password">
+              </div>
+              {% if errors and errors.password %}<small class="text-danger">{{ errors.password }}</small>{% endif %}
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">Confirm Password</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                <input type="password" name="confirm_password" class="form-control" placeholder="Confirm password">
+              </div>
+              {% if errors and errors.confirm_password %}<small class="text-danger">{{ errors.confirm_password
+                }}</small>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-2 mb-3">
+          <i class="bi bi-person-plus me-2"></i>Create Account
+        </button>
+
+        <div class="divider">
+          <span>Already have an account?</span>
+        </div>
+
+        <p class="text-center mb-0">
+          <a href="{{ url_for('auth.login') }}" class="auth-link">
+            <i class="bi bi-arrow-left me-1"></i> Sign in instead
+          </a>
+        </p>
+      </form>
+    </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
