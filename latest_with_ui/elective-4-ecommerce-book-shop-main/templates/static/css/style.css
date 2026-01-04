@@ -1,0 +1,37 @@
+:root {
+  --primary: #1e3a8a; /* navy blue */
+  --secondary: #3b82f6; /* bright blue */
+  --background: #f3f4f6; /* light gray */
+  --text: #111827; /* dark text */
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+}
+
+.navbar {
+  background: var(--primary);
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar a {
+  color: white;
+  margin-left: 15px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.navbar a:hover {
+  color: var(--secondary);
+}
+
+.content {
+  padding: 2rem;
+}

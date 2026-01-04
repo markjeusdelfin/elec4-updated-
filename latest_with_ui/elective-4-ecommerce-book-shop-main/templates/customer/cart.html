@@ -1,0 +1,322 @@
+{% extends "layout/base_user.html" %} {% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">
+    <i class="bi bi-cart3 me-2 text-primary"></i> Shopping Cart
+  </h2>
+
+  <div class="row">
+    <div class="col-lg-8">
+      {% if cart_items %}
+      <div
+        class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded shadow-sm"
+      >
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="selectAll" />
+          <label class="form-check-label fw-bold" for="selectAll"
+            >Select All Items</label
+          >
+        </div>
+        <button
+          type="button"
+          id="delete-selected-btn"
+          class="btn btn-danger btn-sm d-none"
+        >
+          <i class="bi bi-trash"></i> Delete Selected
+        </button>
+      </div>
+
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="bg-light text-muted small text-uppercase">
+              <tr>
+                <th class="ps-4" style="width: 40px"></th>
+                <th>Product</th>
+                <th>Price</th>
+                <th style="width: 130px">Qty</th>
+                <th class="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="cart-table-body">
+              {% for item in cart_items %}
+              <tr data-cart-id="{{ item.cart_id }}">
+                <td class="ps-4">
+                  <input
+                    class="form-check-input item-checkbox"
+                    type="checkbox"
+                    value="{{ item.cart_id }}"
+                  />
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    {% set clean_filename =
+                    item.image.split('\\')[-1].split('/')[-1] if item.image else
+                    'default-book.png' %}
+                    <img
+                      src="{{ url_for('static', filename='img/' + clean_filename) }}"
+                      class="rounded"
+                      style="width: 45px; height: 60px; object-fit: cover"
+                    />
+                    <div class="ms-3">
+                      <h6 class="mb-0 text-truncate" style="max-width: 180px">
+                        {{ item.title }}
+                      </h6>
+                      <small class="text-muted"
+                        >Stock:
+                        <span class="stock-limit">{{ item.stock }}</span></small
+                      >
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  ₱<span class="unit-price"
+                    >{{ "%.2f"|format(item.price) }}</span
+                  >
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <button
+                      class="btn btn-outline-secondary qty-control"
+                      data-action="minus"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="text"
+                      class="form-control text-center qty-input"
+                      value="{{ item.quantity }}"
+                      readonly
+                    />
+                    <button
+                      class="btn btn-outline-secondary qty-control"
+                      data-action="plus"
+                    >
+                      +
+                    </button>
+                  </div>
+                </td>
+                <td class="text-end fw-bold">
+                  ₱<span class="item-subtotal"
+                    >{{ "%.2f"|format(item.price * item.quantity) }}</span
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="text-center py-5 card shadow-sm border-0">
+        <i class="bi bi-cart-x text-muted" style="font-size: 4rem"></i>
+        <h4 class="mt-3">Your cart is empty</h4>
+        <a href="{{ url_for('customer.shop') }}" class="btn btn-primary mt-3"
+          >Browse Books</a
+        >
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 sticky-top" style="top: 2rem">
+        <div class="card-body p-4">
+          <h5 class="mb-4 fw-bold">Order Summary</h5>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Subtotal</span>
+            <span id="summary-subtotal">₱{{ "%.2f"|format(subtotal) }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span>Shipping</span>
+            <span
+              class="text-success"
+              id="summary-shipping"
+              data-value="{{ shipping }}"
+              >₱{{ "%.2f"|format(shipping) }}</span
+            >
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between mb-4">
+            <span class="h5 fw-bold">Total</span>
+            <span class="h5 fw-bold text-primary" id="summary-total"
+              >₱{{ "%.2f"|format(total) }}</span
+            >
+          </div>
+          <a
+            href="{{ url_for('customer.checkout') }}"
+            class="btn btn-success btn-lg w-100 {% if not cart_items %}disabled{% endif %}"
+            id="checkout-btn"
+          >
+            Proceed to Checkout
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- CONFIG & UTILS ---
+  const debounceTimers = {};
+
+  function updateDisplayTotals() {
+    let subtotal = 0;
+    // Iterate through all items to calculate the new subtotal
+    document.querySelectorAll(".item-subtotal").forEach((el) => {
+      subtotal += parseFloat(el.innerText);
+    });
+
+    const shippingEl = document.getElementById("summary-shipping");
+    const shipping = subtotal > 0 ? parseFloat(shippingEl.dataset.value) : 0;
+    const total = subtotal + shipping;
+
+    document.getElementById(
+      "summary-subtotal"
+    ).innerText = `₱${subtotal.toFixed(2)}`;
+    document.getElementById("summary-total").innerText = `₱${total.toFixed(2)}`;
+
+    // Hide shipping if cart is empty
+    shippingEl.innerText = subtotal > 0 ? `₱${shipping.toFixed(2)}` : "₱0.00";
+  }
+
+  // --- FIXED CORE QUANTITY LOGIC ---
+  async function commitQuantityChange(cartId, newQty) {
+    const formData = new FormData();
+    formData.append("quantity", newQty);
+
+    try {
+      // Added '/customer' prefix to match Blueprint registration
+      const response = await fetch(`/customer/update_cart/${cartId}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+      if (!data.success) {
+        alert(data.message);
+        location.reload();
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert("Failed to sync with server. Your changes might not be saved.");
+    }
+  }
+
+  // --- FIXED REMOVE LOGIC ---
+  document.querySelectorAll(".single-remove-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      if (confirm(`Remove "${this.dataset.title}"?`)) {
+        // Added '/customer' prefix here as well
+        fetch(`/customer/cart/remove/${this.dataset.id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) location.reload();
+          });
+      }
+    });
+  });
+
+  document.querySelectorAll(".qty-control").forEach((button) => {
+    button.addEventListener("click", function () {
+      const row = this.closest("tr");
+      const cartId = row.dataset.cartId;
+      const input = row.querySelector(".qty-input");
+      const subtotalEl = row.querySelector(".item-subtotal");
+      const price = parseFloat(row.querySelector(".unit-price").innerText);
+      const stock = parseInt(row.querySelector(".stock-limit").innerText);
+
+      let qty = parseInt(input.value);
+      const action = this.dataset.action;
+
+      if (action === "plus") {
+        if (qty < stock) qty++;
+        else {
+          alert("Maximum stock reached");
+          return;
+        }
+      } else if (action === "minus") {
+        if (qty > 1) qty--;
+        else return;
+      }
+
+      // 1. Instant UI Update
+      input.value = qty;
+      subtotalEl.innerText = (qty * price).toFixed(2);
+      updateDisplayTotals();
+
+      // 2. Debounced Backend Update
+      clearTimeout(debounceTimers[cartId]);
+      debounceTimers[cartId] = setTimeout(() => {
+        commitQuantityChange(cartId, qty);
+      }, 500);
+    });
+  });
+
+  // --- REMOVE LOGIC ---
+  document.querySelectorAll(".single-remove-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const cartId = this.dataset.id;
+      const title = this.dataset.title;
+
+      if (confirm(`Remove "${title}" from cart?`)) {
+        /**
+         * FIX: Ensure the method matches your Flask route.
+         * Your current Flask route for remove doesn't specify 'methods=['POST']',
+         * so it defaults to GET. Either add methods=['POST'] to Flask or use GET here.
+         */
+        fetch(`/cart/remove/${cartId}`) // Removed {method: 'POST'} to match your Python code
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              location.reload();
+            } else {
+              alert("Failed to remove item.");
+            }
+          })
+          .catch((err) => alert("Connection error."));
+      }
+    });
+  });
+
+  // --- SELECT ALL & BULK DELETE ---
+  const selectAll = document.getElementById("selectAll");
+  const checkboxes = document.querySelectorAll(".item-checkbox");
+  const deleteBtn = document.getElementById("delete-selected-btn");
+
+  if (selectAll) {
+    selectAll.addEventListener("change", function () {
+      checkboxes.forEach((cb) => (cb.checked = this.checked));
+      toggleDeleteBtn();
+    });
+  }
+
+  checkboxes.forEach((cb) => cb.addEventListener("change", toggleDeleteBtn));
+
+  function toggleDeleteBtn() {
+    const checkedCount = Array.from(checkboxes).filter(
+      (cb) => cb.checked
+    ).length;
+    deleteBtn.classList.toggle("d-none", checkedCount === 0);
+    deleteBtn.innerHTML = `<i class="bi bi-trash"></i> Delete (${checkedCount})`;
+  }
+
+  deleteBtn.addEventListener("click", function () {
+    const selectedIds = Array.from(checkboxes)
+      .filter((cb) => cb.checked)
+      .map((cb) => cb.value);
+    if (confirm(`Delete ${selectedIds.length} items?`)) {
+      fetch("{{ url_for('customer.bulk_remove_cart') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart_ids: selectedIds }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) location.reload();
+        });
+    }
+  });
+</script>
+{% endblock %}

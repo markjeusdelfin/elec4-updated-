@@ -1,0 +1,86 @@
+{% extends "layout/base_admin.html" %} {% block title %}Manage Categories{% endblock %}
+{% block content %}
+
+<h2>📂 Manage Categories</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a href="{{ url_for('category.add_category') }}" class="btn btn-success"
+    >➕ Add Category</a
+  >
+
+  <!-- Search Form -->
+  <form
+    method="get"
+    class="d-flex"
+    action="{{ url_for('category.manage_categories') }}"
+  >
+    <input
+      type="text"
+      name="search"
+      class="form-control me-2"
+      placeholder="Search categories..."
+      value="{{ search or '' }}"
+    />
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages
+%} {% for category, message in messages %}
+<div
+  class="alert alert-{{ category }} alert-dismissible fade show"
+  role="alert"
+>
+  {{ message }}
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endfor %} {% endif %} {% endwith %} {% if categories %}
+<table class="table table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>Category Name</th>
+      <th>Description</th>
+      <th>Created At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for cat in categories %}
+    <tr>
+      <td>{{ cat.category_id }}</td>
+      <td>{{ cat.category_name }}</td>
+      <td>{{ cat.description or '—' }}</td>
+      <td>
+        {{ cat.created_at.strftime('%Y-%m-%d %H:%M') if cat.created_at else '—'
+        }}
+      </td>
+      <td>
+        <a
+          href="{{ url_for('category.edit_category', category_id=cat.category_id) }}"
+          class="btn btn-primary btn-sm"
+          >Edit</a
+        >
+        <a
+          href="{{ url_for('category.delete_category', category_id=cat.category_id) }}"
+          class="btn btn-danger btn-sm"
+          onclick="return confirm('Are you sure?')"
+          >Delete</a
+        >
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+  <strong>No categories found.</strong>
+  {% if search %} No results for "<strong>{{ search }}</strong>". Try another
+  search. {% else %} Click "Add Category" to create one. {% endif %}
+</div>
+{% endif %} {% endblock %}

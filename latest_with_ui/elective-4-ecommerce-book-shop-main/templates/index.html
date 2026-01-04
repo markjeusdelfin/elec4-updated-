@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BookStop</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+  --green-main: #1f7a5a;
+  --green-dark: #165e46;
+  --green-soft: #e9f4ef;
+  --ink-900: #1c1c1c;
+  --ink-600: #5f6368;
+  --bg-main: #f8f9f7;
+  --bg-white: #ffffff;
+  --line: #e4e6e8;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --shadow-soft: 0 18px 40px rgba(0,0,0,0.06);
+  --shadow-hover: 0 28px 60px rgba(0,0,0,0.12);
+  --max-width: 1200px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--bg-main);
+  color: var(--ink-900);
+  line-height: 1.7;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: auto;
+  padding: 0 2rem;
+}
+
+.section {
+  padding: 1rem 0;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 2.2rem;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: var(--green-main);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--green-dark);
+  transform: translateY(-2px);
+}
+
+header {
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--green-main);
+}
+
+.nav-actions {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.nav-actions a {
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.45rem 1.2rem;
+  border-radius: 20px;
+  transition: all 0.25s ease;
+}
+
+.login {
+  color: var(--ink-600);
+}
+
+.login:hover {
+  background: var(--bg-white);
+}
+
+.register {
+  background: var(--green-main);
+  color: white;
+}
+
+.register:hover {
+  background: var(--green-dark);
+}
+
+.hero {
+  padding: 6rem 0 2rem;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.hero p {
+  color: var(--ink-600);
+  max-width: 480px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-visual-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.hero-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.hero-image:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.hero-image img {
+  height: 300px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.hero-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.hero-info-box {
+  background: var(--bg-white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.hero-info-box:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero-info-box h4 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.hero-info-box span {
+  font-size: 0.85rem;
+  color: var(--ink-600);
+}
+
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 3rem;
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 2rem;
+}
+
+.book-card {
+  background: var(--bg-white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+}
+
+.book-card img {
+  height: 220px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.book-info {
+  padding: 1.3rem;
+}
+
+.book-info h4 {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.book-info span {
+  color: var(--green-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.testimonials {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 2rem;
+}
+
+.testimonial {
+  background: var(--bg-white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.testimonial:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+}
+
+.testimonial p {
+  font-size: 0.9rem;
+  color: var(--ink-600);
+  margin-bottom: 1rem;
+}
+
+.experience {
+  background: var(--green-soft);
+  border-radius: var(--radius-lg);
+  padding: 4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  padding: 3rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-600);
+}
+
+@media (max-width: 900px) {
+  .hero-grid,
+  .experience {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-info-grid,
+  .book-grid,
+  .testimonials {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="logo"><b>BookStop</b></div>
+    <div class="nav-actions">
+      <a href="{{ url_for('auth.login') }}" class="login"><b>Login</b></a>
+      <a href="{{ url_for('auth.register') }}" class="register"><b>Register</b></a>
+    </div>
+  </div>
+</header>
+
+<section class="hero container">
+  <div class="hero-grid">
+    <div>
+      <h1>Buy and sell your textbooks for the best price</h1>
+      <p>
+        From academic literature to essential resources,
+        BookStop connects students and institutions worldwide.
+      </p>
+      <a href="{{ url_for('customer.shop') }}" class="btn btn-primary"><b>Shop Now</b></a>
+    </div>
+
+    <div class="hero-visual-wrapper">
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c">
+      </div>
+
+      <div class="hero-info-grid">
+        <div class="hero-info-box">
+          <h4><b>Best Price Guarantee</b></h4>
+          <span>Fair pricing for students</span>
+        </div>
+        <div class="hero-info-box">
+          <h4><b>Verified Sellers</b></h4>
+          <span>Trusted academic partners</span>
+        </div>
+        <div class="hero-info-box">
+          <h4><b>Fast Availability</b></h4>
+          <span>Immediate access to books</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <h2 class="section-title">Best Sellers</h2>
+
+  <div class="book-grid">
+    <div class="book-card">
+      <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f">
+      <div class="book-info">
+        <h4><b>Introduction to Algorithms</b></h4>
+        <span>$45.00</span>
+        <p style="font-size:0.8rem; color: var(--ink-600); margin-top:0.5rem;">
+          "This book really helped me understand complex concepts easily!" - Alex
+        </p>
+      </div>
+    </div>
+
+    <div class="book-card">
+      <img src="https://images.unsplash.com/photo-1555529669-413811fbf24f">
+      <div class="book-info">
+        <h4><b>Clean Code</b></h4>
+        <span>$39.00</span>
+        <p style="font-size:0.8rem; color: var(--ink-600); margin-top:0.5rem;">
+          "A must-have for anyone serious about coding." - Jamie
+        </p>
+      </div>
+    </div>
+
+    <div class="book-card">
+      <img src="https://images.unsplash.com/photo-1581092795363-3a031c97efb5">
+      <div class="book-info">
+        <h4><b>Design Patterns</b></h4>
+        <span>$50.00</span>
+        <p style="font-size:0.8rem; color: var(--ink-600); margin-top:0.5rem;">
+          "Excellent reference book for software architecture." - Maria
+        </p>
+      </div>
+    </div>
+
+    <div class="book-card">
+      <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765">
+      <div class="book-info">
+        <h4><b>Artificial Intelligence</b></h4>
+        <span>$60.00</span>
+        <p style="font-size:0.8rem; color: var(--ink-600); margin-top:0.5rem;">
+          "Helped me ace my AI course!" - Daniel
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <b>© 2026 BookStop Inc.</b>
+</footer>
+
+</body>
+</html>

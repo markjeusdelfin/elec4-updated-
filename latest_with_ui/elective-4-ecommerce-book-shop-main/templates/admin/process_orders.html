@@ -1,0 +1,38 @@
+{% extends "layout/base_admin.html" %} {% block title %}Process Orders{%
+endblock %} {% block content %}
+<h2>Customer Orders</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    {% for o in orders %}
+    <tr>
+        <td>ORD-{{ o.order_id }}</td>
+        <td>{{ o.email }}</td>
+        <td>₱{{ o.total_amount }}</td>
+        <td>{{ o.status }}</td>
+        <td>
+            <form method="POST" action="{{ url_for('admin_orders.update_order_status', order_id=o.order_id) }}">
+                <select name="status" required>
+                    <option value="Pending">Pending</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Declined">Declined</option>
+                </select>
+
+                <input type="text" name="reason" placeholder="Reason (if declined)">
+                <button type="submit">Update</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+

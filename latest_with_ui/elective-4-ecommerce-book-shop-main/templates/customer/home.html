@@ -1,0 +1,304 @@
+{% extends "layout/base_user.html" %} {% block title %}Paper Haven | Home{%
+endblock %} {% block content %}
+
+<style>
+  :root {
+    --primary-beige: #fdfbf7;
+    --accent-brown: #7d6e5d;
+    --text-dark: #2d2d2d;
+    --text-muted: #757575;
+    --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
+
+  body {
+    background-color: var(--primary-beige);
+    color: var(--text-dark);
+    font-family: "Inter", sans-serif;
+  }
+
+  /* Search Bar Styling */
+  .search-container {
+    max-width: 400px;
+    margin-left: auto;
+  }
+  .search-bar {
+    border-radius: 50px;
+    border: 1px solid #e0e0e0;
+    padding: 12px 25px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: white;
+  }
+  .search-bar:focus {
+    box-shadow: var(--soft-shadow);
+    border-color: var(--accent-brown);
+    outline: none;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    padding: 100px 0;
+  }
+  .hero-title {
+    font-family: "Playfair Display", serif;
+    font-size: 4.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--text-dark);
+  }
+  .hero-subtitle {
+    max-width: 450px;
+    line-height: 1.6;
+  }
+  .btn-explore {
+    background-color: var(--accent-brown);
+    color: white;
+    border-radius: 50px;
+    padding: 15px 40px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  .btn-explore:hover {
+    background-color: #5a4f43;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(125, 110, 93, 0.3);
+  }
+
+  /* Arched Images */
+  .arch-container {
+    background: #e9e4db;
+    border-radius: 180px 180px 0 0;
+    padding: 50px 25px 0;
+    height: 380px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: transform 0.4s ease;
+  }
+  .arch-container:hover {
+    transform: translateY(-10px);
+  }
+  .arch-img {
+    width: 180px;
+    height: 270px;
+    object-fit: cover;
+    box-shadow: 15px 15px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    margin-bottom: -25px;
+  }
+
+  /* Author Badges */
+  .author-badge {
+    background: white;
+    border-radius: 50px;
+    padding: 10px 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    text-decoration: none !important;
+    color: var(--text-dark);
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+  }
+  .author-badge:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-brown);
+    color: var(--accent-brown);
+  }
+
+  /* Book Cards */
+  .book-card-alt {
+    padding: 15px;
+    background: white;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+  }
+  .book-card-alt:hover {
+    box-shadow: var(--soft-shadow);
+    transform: scale(1.02);
+  }
+  .book-thumb {
+    width: 110px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.08);
+  }
+  .price-tag {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--accent-brown);
+  }
+  .add-btn {
+    border: 1px solid #eee;
+    background: #fcfcfc;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .add-btn:hover {
+    background: var(--accent-brown);
+    color: white;
+    border-color: var(--accent-brown);
+  }
+
+  /* Utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+
+<div class="container pb-5">
+  <div class="d-flex justify-content-end py-4">
+    <div class="search-container w-100">
+      <form
+        action="{{ url_for('customer.home') }}"
+        method="GET"
+        class="d-flex position-relative"
+      >
+        <input
+          type="text"
+          name="search"
+          class="search-bar w-100"
+          placeholder="Search by title or author..."
+          value="{{ request.args.get('search', '') }}"
+        />
+        <button
+          type="submit"
+          class="btn position-absolute end-0 top-0 mt-1 me-2 text-muted"
+        >
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row hero-section align-items-center">
+    <div class="col-lg-5 mb-5 mb-lg-0">
+      <h1 class="hero-title mb-4">Find Your<br />Next Book</h1>
+      <p class="text-muted fs-5 mb-5 hero-subtitle">
+        Discover a world where every page brings a new adventure. We curate a
+        diverse collection of stories for every kind of reader.
+      </p>
+      <a href="#collection" class="btn btn-explore">
+        Explore Now <i class="fas fa-arrow-right ms-2"></i>
+      </a>
+    </div>
+    <div class="col-lg-7">
+      <div class="d-flex gap-4 justify-content-center">
+        {% for i in range(3) %} {% if books[i] %}
+        <div class="arch-container">
+          {# CLEANING LOGIC: Removes path/backslashes to get just the filename
+          #} {% set hero_img = books[i].image.split('\\')[-1].split('/')[-1] if
+          books[i].image else 'default-book.png' %}
+          <img
+            src="{{ url_for('static', filename='img/' + hero_img) }}"
+            class="arch-img"
+            alt="{{ books[i].title }}"
+          />
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+    </div>
+
+    <div class="d-flex gap-3 overflow-auto pb-5 no-scrollbar">
+      {% for auth in authors %}
+      <a
+        href="{{ url_for('customer.home', author=auth.author) }}"
+        class="author-badge d-flex align-items-center gap-3"
+      >
+        <div
+          class="rounded-circle d-flex align-items-center justify-content-center bg-light"
+          style="width: 35px; height: 35px; border: 1px solid #eee"
+        >
+          <i class="fas fa-user text-muted small"></i>
+        </div>
+        <span>{{ auth.author }}</span>
+      </a>
+      {% endfor %}
+    </div>
+
+    <div id="collection" class="py-5">
+      <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+          <h2 class="fw-bold mb-1">Recommended For You</h2>
+          <p class="text-muted small">
+            Handpicked titles based on your reading style
+          </p>
+        </div>
+        <a
+          href="{{ url_for('customer.shop') }}"
+          class="text-dark fw-bold text-decoration-none small"
+        >
+          View All <i class="fas fa-chevron-right ms-1"></i>
+        </a>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+        {% for book in books %}
+        <div class="col">
+          <div class="book-card-alt d-flex gap-3 h-100">
+            {# CLEANING LOGIC: Handles inconsistent database image paths #} {%
+            set book_img = book.image.split('\\')[-1].split('/')[-1] if
+            book.image else 'default-book.png' %}
+            <img
+              src="{{ url_for('static', filename='img/' + book_img) }}"
+              class="book-thumb"
+              alt="{{ book.title }}"
+            />
+
+            <div
+              class="d-flex flex-column justify-content-between flex-grow-1 py-1"
+            >
+              <div>
+                <h6
+                  class="fw-bold mb-1 text-truncate"
+                  style="max-width: 150px"
+                  title="{{ book.title }}"
+                >
+                  {{ book.title }}
+                </h6>
+                <p class="text-muted small mb-2">
+                  By {{ book.author or 'Unknown' }}
+                </p>
+              </div>
+
+              <div
+                class="d-flex align-items-center justify-content-between mt-3"
+              >
+                <span class="price-tag">₱{{ "%.0f"|format(book.price) }}</span>
+                <form
+                  action="{{ url_for('customer.add_to_cart') }}"
+                  method="POST"
+                  class="m-0"
+                >
+                  <input
+                    type="hidden"
+                    name="product_id"
+                    value="{{ book.product_id }}"
+                  />
+                  <input type="hidden" name="quantity" value="1" />
+                  <button type="submit" class="add-btn">
+                    <i class="fas fa-plus small me-1"></i> Cart
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% endblock %}
+  </div>
+</div>
