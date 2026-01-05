@@ -14,7 +14,35 @@ from reportlab.pdfgen import canvas
 @admin_bp.route('/dashboard')
 @admin_required
 def dashboard():
-    return render_template('admin/dashboard.html')
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get total products count
+        cursor.execute("SELECT COUNT(*) as count FROM products")
+        total_products = cursor.fetchone()['count']
+        
+        # Get total orders count
+        cursor.execute("SELECT COUNT(*) as count FROM orders")
+        total_orders = cursor.fetchone()['count']
+        
+        # Get pending orders count
+        cursor.execute("SELECT COUNT(*) as count FROM orders WHERE status = 'Pending'")
+        pending_orders = cursor.fetchone()['count']
+        
+        # Get total customers count
+        cursor.execute("SELECT COUNT(*) as count FROM users WHERE role = 'customer'")
+        total_customers = cursor.fetchone()['count']
+        
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('admin/dashboard.html',
+                           total_products=total_products,
+                           total_orders=total_orders,
+                           pending_orders=pending_orders,
+                           total_customers=total_customers)
 
 
 # ==================================================

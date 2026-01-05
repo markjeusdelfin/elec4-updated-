@@ -22,7 +22,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-muted small mb-1">Total Products</p>
-                            <h3 class="mb-0 fw-bold">--</h3>
+                            <h3 class="mb-0 fw-bold">{{ total_products }}</h3>
                         </div>
                         <div class="stat-icon" style="background: linear-gradient(135deg, #8B7355, #A68B5B);">
                             <i class="bi bi-box-seam"></i>
@@ -38,7 +38,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-muted small mb-1">Total Orders</p>
-                            <h3 class="mb-0 fw-bold">--</h3>
+                            <h3 class="mb-0 fw-bold">{{ total_orders }}</h3>
                         </div>
                         <div class="stat-icon" style="background: linear-gradient(135deg, #4CAF50, #66BB6A);">
                             <i class="bi bi-receipt"></i>
@@ -54,7 +54,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-muted small mb-1">Pending Orders</p>
-                            <h3 class="mb-0 fw-bold">--</h3>
+                            <h3 class="mb-0 fw-bold">{{ pending_orders }}</h3>
                         </div>
                         <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800, #FFB74D);">
                             <i class="bi bi-hourglass-split"></i>
@@ -70,7 +70,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-muted small mb-1">Total Customers</p>
-                            <h3 class="mb-0 fw-bold">{{ users|length }}</h3>
+                            <h3 class="mb-0 fw-bold">{{ total_customers }}</h3>
                         </div>
                         <div class="stat-icon" style="background: linear-gradient(135deg, #2196F3, #64B5F6);">
                             <i class="bi bi-people"></i>
