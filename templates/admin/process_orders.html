@@ -2,406 +2,583 @@
 {% block title %}Process Orders | Paper Haven{% endblock %}
 {% block content %}
 <div class="container-fluid py-4">
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="mb-1"><i class="bi bi-receipt me-2" style="color: var(--accent-brown);"></i>Process Customer Orders
-      </h2>
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0 small">
-          <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none"
-              style="color: var(--accent-brown);">Dashboard</a></li>
-          <li class="breadcrumb-item active">Orders</li>
-        </ol>
-      </nav>
-    </div>
-  </div>
-
-  <!-- Flash Messages -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-  {% for category, message in messages %}
-  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endfor %}
-  {% endif %}
-  {% endwith %}
-
-  <!-- Status Filter Tabs & Search -->
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-      <div class="row align-items-center">
-        <div class="col-md-8">
-          <ul class="nav nav-pills" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link {{ 'active' if status_filter == 'all' }}"
-                href="{{ url_for('admin.process_orders', status='all') }}">
-                All Orders
-                <span class="badge bg-secondary ms-1">{{ status_counts.values()|sum }}</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {{ 'active' if status_filter == 'Pending' }}"
-                href="{{ url_for('admin.process_orders', status='Pending') }}">
-                <i class="bi bi-hourglass-split text-warning me-1"></i>Pending
-                <span class="badge bg-warning text-dark ms-1">{{ status_counts.get('Pending', 0) }}</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {{ 'active' if status_filter == 'Approved' }}"
-                href="{{ url_for('admin.process_orders', status='Approved') }}">
-                <i class="bi bi-check-circle text-success me-1"></i>Approved
-                <span class="badge bg-success ms-1">{{ status_counts.get('Approved', 0) }}</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {{ 'active' if status_filter == 'Shipped' }}"
-                href="{{ url_for('admin.process_orders', status='Shipped') }}">
-                <i class="bi bi-truck text-info me-1"></i>Shipped
-                <span class="badge bg-info ms-1">{{ status_counts.get('Shipped', 0) }}</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {{ 'active' if status_filter == 'Delivered' }}"
-                href="{{ url_for('admin.process_orders', status='Delivered') }}">
-                <i class="bi bi-check2-all text-primary me-1"></i>Delivered
-                <span class="badge bg-primary ms-1">{{ status_counts.get('Delivered', 0) }}</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {{ 'active' if status_filter == 'Declined' }}"
-                href="{{ url_for('admin.process_orders', status='Declined') }}">
-                <i class="bi bi-x-circle text-danger me-1"></i>Declined
-                <span class="badge bg-danger ms-1">{{ status_counts.get('Declined', 0) }}</span>
-              </a>
-            </li>
-          </ul>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="bi bi-receipt me-2" style="color: var(--accent-brown);"></i>Process Customer
+                Orders
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none"
+                            style="color: var(--accent-brown);">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Orders</li>
+                </ol>
+            </nav>
         </div>
-        <div class="col-md-4">
-          <form method="GET" class="d-flex">
-            <input type="hidden" name="status" value="{{ status_filter }}">
-            <input type="text" name="search" class="form-control" placeholder="Search orders..."
-              value="{{ search_query }}">
-            <button type="submit" class="btn btn-primary ms-2"><i class="bi bi-search"></i></button>
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Orders Table -->
-  <div class="card border-0 shadow-sm">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th class="ps-4">Order ID</th>
-            <th>Customer</th>
-            <th>Shipping Info</th>
-            <th>Date</th>
-            <th>Payment</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th class="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for order in orders %}
-          <tr>
-            <td class="ps-4">
-              <span class="fw-bold text-primary">#ORD-{{ order.order_id }}</span>
-            </td>
-            <td>
-              <div class="fw-bold">{{ order.customer_name }}</div>
-              <div class="text-muted small">{{ order.customer_email }}</div>
-            </td>
-            <td>
-              <div class="fw-semibold" style="font-size: 0.85rem">{{ order.name if order.name else order.customer_name
-                }}</div>
-              <div class="text-muted small" style="max-width: 180px; line-height: 1.3">
-                {{ order.address if order.address else 'No address provided' }}
-              </div>
-            </td>
-            <td>
-              <div class="small">{{ order.order_date.strftime('%b %d, %Y') }}</div>
-              <div class="text-muted" style="font-size: 0.75rem">{{ order.order_date.strftime('%I:%M %p') }}</div>
-            </td>
-            <td>
-              <span class="badge {{ 'bg-success' if order.payment_method == 'Online' else 'bg-secondary' }}">
-                {{ order.payment_method }}
-              </span>
-              {% if order.payment_proof %}
-              <a href="{{ url_for('static', filename='img/payments/' + order.payment_proof) }}" target="_blank"
-                class="ms-1 text-info" title="View Payment Proof">
-                <i class="bi bi-image"></i>
-              </a>
-              {% endif %}
-            </td>
-            <td>
-              <span class="fw-bold text-success">₱{{ "%.2f"|format(order.total_amount) }}</span>
-            </td>
-            <td>
-              {% if order.status == 'Pending' %}
-              <span class="badge rounded-pill bg-warning text-dark px-3">
-                <i class="bi bi-hourglass-split me-1"></i>Pending
-              </span>
-              {% elif order.status == 'Approved' %}
-              <span class="badge rounded-pill bg-success px-3">
-                <i class="bi bi-check-circle me-1"></i>Approved
-              </span>
-              {% elif order.status == 'Shipped' %}
-              <span class="badge rounded-pill bg-info px-3">
-                <i class="bi bi-truck me-1"></i>Shipped
-              </span>
-              {% elif order.status == 'Delivered' %}
-              <span class="badge rounded-pill bg-primary px-3">
-                <i class="bi bi-check2-all me-1"></i>Delivered
-              </span>
-              {% elif order.status == 'Declined' %}
-              <span class="badge rounded-pill bg-danger px-3">
-                <i class="bi bi-x-circle me-1"></i>Declined
-              </span>
-              {% endif %}
-            </td>
-            <td class="text-center">
-              <div class="btn-group btn-group-sm">
-                <!-- View Details -->
-                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                  data-bs-target="#detailsModal{{ order.order_id }}" title="View Details">
-                  <i class="bi bi-eye"></i>
-                </button>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
-                {% if order.status == 'Pending' %}
-                <!-- Approve -->
-                <form action="{{ url_for('admin.approve_order', order_id=order.order_id) }}" method="POST"
-                  class="d-inline">
-                  <button type="submit" class="btn btn-outline-success" title="Approve Order">
-                    <i class="bi bi-check-lg"></i>
-                  </button>
-                </form>
-                <!-- Decline -->
-                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-                  data-bs-target="#declineModal{{ order.order_id }}" title="Decline Order">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-                {% elif order.status == 'Approved' %}
-                <!-- Ship -->
-                <form action="{{ url_for('admin.ship_order', order_id=order.order_id) }}" method="POST"
-                  class="d-inline">
-                  <button type="submit" class="btn btn-outline-info" title="Mark as Shipped">
-                    <i class="bi bi-truck"></i>
-                  </button>
-                </form>
-                {% elif order.status == 'Shipped' %}
-                <!-- Deliver -->
-                <form action="{{ url_for('admin.deliver_order', order_id=order.order_id) }}" method="POST"
-                  class="d-inline">
-                  <button type="submit" class="btn btn-outline-primary" title="Mark as Delivered">
-                    <i class="bi bi-check2-all"></i>
-                  </button>
-                </form>
-                {% endif %}
-              </div>
-            </td>
-          </tr>
-
-          <!-- Order Details Modal -->
-          <div class="modal fade" id="detailsModal{{ order.order_id }}" tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-              <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary text-white">
-                  <h5 class="modal-title">
-                    <i class="bi bi-receipt me-2"></i>Order Details #ORD-{{ order.order_id }}
-                  </h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <!-- Status Filter Tabs & Search -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <ul class="nav nav-pills" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if status_filter == 'all' }}"
+                                href="{{ url_for('admin.process_orders', status='all') }}">
+                                All Orders
+                                <span class="badge bg-secondary ms-1">{{ status_counts.values()|sum }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if status_filter == 'Pending' }}"
+                                href="{{ url_for('admin.process_orders', status='Pending') }}">
+                                <i class="bi bi-hourglass-split text-warning me-1"></i>Pending
+                                <span class="badge bg-warning text-dark ms-1">{{ status_counts.get('Pending', 0)
+                                    }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if status_filter == 'Approved' }}"
+                                href="{{ url_for('admin.process_orders', status='Approved') }}">
+                                <i class="bi bi-check-circle text-success me-1"></i>Approved
+                                <span class="badge bg-success ms-1">{{ status_counts.get('Approved', 0) }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if status_filter == 'Shipped' }}"
+                                href="{{ url_for('admin.process_orders', status='Shipped') }}">
+                                <i class="bi bi-truck text-info me-1"></i>Shipped
+                                <span class="badge bg-info ms-1">{{ status_counts.get('Shipped', 0) }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if status_filter == 'Delivered' }}"
+                                href="{{ url_for('admin.process_orders', status='Delivered') }}">
+                                <i class="bi bi-check2-all text-primary me-1"></i>Delivered
+                                <span class="badge bg-primary ms-1">{{ status_counts.get('Delivered', 0) }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if status_filter == 'Declined' }}"
+                                href="{{ url_for('admin.process_orders', status='Declined') }}">
+                                <i class="bi bi-x-circle text-danger me-1"></i>Declined
+                                <span class="badge bg-danger ms-1">{{ status_counts.get('Declined', 0) }}</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="modal-body">
-                  <div class="row mb-4">
-                    <div class="col-md-6">
-                      <div class="card bg-light border-0 h-100">
-                        <div class="card-body">
-                          <h6 class="text-muted text-uppercase small fw-bold mb-3">
-                            <i class="bi bi-person me-1"></i>Customer Information
-                          </h6>
-                          <p class="mb-1 fw-bold">{{ order.customer_name }}</p>
-                          <p class="mb-1 text-muted small">{{ order.customer_email }}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="card bg-light border-0 h-100">
-                        <div class="card-body">
-                          <h6 class="text-muted text-uppercase small fw-bold mb-3">
-                            <i class="bi bi-geo-alt me-1"></i>Shipping Address
-                          </h6>
-                          <p class="mb-1 fw-bold">{{ order.name if order.name else order.customer_name }}</p>
-                          <p class="mb-0 text-muted small">{{ order.address if order.address else 'No address provided'
-                            }}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div class="col-md-4">
+                    <form method="GET" class="d-flex">
+                        <input type="hidden" name="status" value="{{ status_filter }}">
+                        <input type="text" name="search" class="form-control" placeholder="Search orders..."
+                            value="{{ search_query }}">
+                        <button type="submit" class="btn btn-primary ms-2"><i class="bi bi-search"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                  <h6 class="text-muted text-uppercase small fw-bold mb-3">
-                    <i class="bi bi-bag me-1"></i>Order Items
-                  </h6>
-                  <div class="table-responsive">
-                    <table class="table table-sm">
-                      <thead class="table-light">
-                        <tr>
-                          <th>Product</th>
-                          <th class="text-center">Qty</th>
-                          <th class="text-end">Price</th>
-                          <th class="text-end">Subtotal</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% if order_details[order.order_id] %}
-                        {% for item in order_details[order.order_id] %}
-                        <tr>
-                          <td>
-                            <div class="d-flex align-items-center">
-                              {% set clean_img = item.image.split('\\')[-1].split('/')[-1] if item.image else
-                              'default-book.png' %}
-                              <img src="{{ url_for('static', filename='img/' + clean_img) }}" class="rounded me-2"
-                                style="width: 40px; height: 55px; object-fit: cover;">
-                              <span>{{ item.title }}</span>
+    <!-- Orders Cards -->
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <!-- Order Info Column with Product Images -->
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start gap-3">
+                            <!-- Product Thumbnails -->
+                            <div class="product-thumbnails d-flex">
+                                {% if order_details[order.order_id] %}
+                                {% for item in order_details[order.order_id][:3] %}
+                                {% set clean_img = item.image.split('\\')[-1].split('/')[-1] if item.image else
+                                'default-book.png' %}
+                                <img src="{{ url_for('static', filename='img/' + clean_img) }}" class="product-thumb"
+                                    alt="{{ item.title }}" title="{{ item.title }}">
+                                {% endfor %}
+                                {% if order_details[order.order_id]|length > 3 %}
+                                <div class="product-thumb-more">
+                                    +{{ order_details[order.order_id]|length - 3 }}
+                                </div>
+                                {% endif %}
+                                {% else %}
+                                <div class="order-avatar">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                                {% endif %}
                             </div>
-                          </td>
-                          <td class="text-center">{{ item.quantity }}</td>
-                          <td class="text-end">₱{{ "%.2f"|format(item.price) }}</td>
-                          <td class="text-end fw-bold">₱{{ "%.2f"|format(item.price * item.quantity) }}</td>
-                        </tr>
-                        {% endfor %}
-                        {% endif %}
-                      </tbody>
-                      <tfoot class="table-light">
-                        <tr>
-                          <td colspan="3" class="text-end fw-bold">Total:</td>
-                          <td class="text-end fw-bold text-success">₱{{ "%.2f"|format(order.total_amount) }}</td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="order-id fw-bold" style="color: var(--accent-brown);">#ORD-{{
+                                        order.order_id }}</span>
+                                </div>
+                                <h6 class="mb-0 fw-bold">{{ order.customer_name }}</h6>
+                                <small class="text-muted">{{ order.customer_email }}</small>
+                                <div class="mt-2 shipping-info">
+                                    <div class="mb-1">
+                                        <small class="text-muted">Name:</small>
+                                        <small class="fw-semibold ms-1">{{ order.name if order.name else
+                                            order.customer_name }}</small>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Address:</small>
+                                        <small class="ms-1">{{ order.address if order.address else 'No address provided'
+                                            }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                  <div class="row mt-3">
-                    <div class="col-md-6">
-                      <div class="d-flex align-items-center">
-                        <span class="text-muted me-2">Payment Method:</span>
-                        <span class="badge {{ 'bg-success' if order.payment_method == 'Online' else 'bg-secondary' }}">
-                          {{ order.payment_method }}
+                    <!-- Date & Payment Column -->
+                    <div class="col-md-3">
+                        <div class="mb-2">
+                            <small class="text-muted d-block">{{ order.order_date.strftime('%b %d, %Y') }}</small>
+                            <small class="text-muted" style="font-size: 0.75rem;">{{ order.order_date.strftime('%I:%M
+                                %p') }}</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span
+                                class="badge {{ 'bg-success' if order.payment_method == 'Online' else 'bg-secondary' }} rounded-pill">
+                                {{ order.payment_method }}
+                            </span>
+                            <span class="fw-bold" style="color: var(--accent-brown);">₱{{
+                                "%.2f"|format(order.total_amount) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Status Column -->
+                    <div class="col-md-2">
+                        {% if order.status == 'Pending' %}
+                        <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                            <i class="bi bi-hourglass-split me-1"></i>Pending
                         </span>
-                        {% if order.payment_proof %}
-                        <a href="{{ url_for('static', filename='img/payments/' + order.payment_proof) }}"
-                          target="_blank" class="btn btn-sm btn-outline-info ms-2">
-                          <i class="bi bi-image me-1"></i>View Proof
-                        </a>
+                        {% elif order.status == 'Approved' %}
+                        <span class="badge rounded-pill bg-success px-3 py-2">
+                            <i class="bi bi-check-circle me-1"></i>Approved
+                        </span>
+                        {% elif order.status == 'Shipped' %}
+                        <span class="badge rounded-pill bg-info px-3 py-2">
+                            <i class="bi bi-truck me-1"></i>Shipped
+                        </span>
+                        {% elif order.status == 'Delivered' %}
+                        <span class="badge rounded-pill bg-primary px-3 py-2">
+                            <i class="bi bi-check2-all me-1"></i>Delivered
+                        </span>
+                        {% elif order.status == 'Declined' %}
+                        <span class="badge rounded-pill bg-danger px-3 py-2">
+                            <i class="bi bi-x-circle me-1"></i>Declined
+                        </span>
                         {% endif %}
-                      </div>
                     </div>
-                    <div class="col-md-6 text-end">
-                      <span class="text-muted me-2">Status:</span>
-                      {% if order.status == 'Pending' %}
-                      <span class="badge bg-warning text-dark">Pending</span>
-                      {% elif order.status == 'Approved' %}
-                      <span class="badge bg-success">Approved</span>
-                      {% elif order.status == 'Shipped' %}
-                      <span class="badge bg-info">Shipped</span>
-                      {% elif order.status == 'Delivered' %}
-                      <span class="badge bg-primary">Delivered</span>
-                      {% elif order.status == 'Declined' %}
-                      <span class="badge bg-danger">Declined</span>
-                      {% endif %}
-                    </div>
-                  </div>
 
-                  {% if order.status == 'Declined' and order.decline_reason %}
-                  <div class="alert alert-danger mt-3 mb-0">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    <strong>Decline Reason:</strong> {{ order.decline_reason }}
-                  </div>
-                  {% endif %}
+                    <!-- Actions Column -->
+                    <div class="col-md-3 text-end">
+                        <div class="btn-group btn-group-sm">
+                            <!-- View Details -->
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                data-bs-target="#detailsModal{{ order.order_id }}" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <!-- Edit Status -->
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                                data-bs-target="#editStatusModal{{ order.order_id }}" title="Edit Status">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            {% if order.status == 'Pending' %}
+                            <!-- Approve -->
+                            <form action="{{ url_for('admin.approve_order', order_id=order.order_id) }}" method="POST"
+                                class="d-inline">
+                                <button type="submit" class="btn btn-outline-success" title="Approve Order">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            <!-- Decline -->
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                data-bs-target="#declineModal{{ order.order_id }}" title="Decline Order">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            {% elif order.status == 'Approved' %}
+                            <!-- Ship -->
+                            <form action="{{ url_for('admin.ship_order', order_id=order.order_id) }}" method="POST"
+                                class="d-inline">
+                                <button type="submit" class="btn btn-outline-info" title="Mark as Shipped">
+                                    <i class="bi bi-truck"></i>
+                                </button>
+                            </form>
+                            {% elif order.status == 'Shipped' %}
+                            <!-- Deliver -->
+                            <form action="{{ url_for('admin.deliver_order', order_id=order.order_id) }}" method="POST"
+                                class="d-inline">
+                                <button type="submit" class="btn btn-outline-primary" title="Mark as Delivered">
+                                    <i class="bi bi-check2-all"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-              </div>
             </div>
-          </div>
+        </div>
 
-          <!-- Decline Modal -->
-          {% if order.status == 'Pending' %}
-          <div class="modal fade" id="declineModal{{ order.order_id }}" tabindex="-1">
+        <!-- Edit Status Modal -->
+        <div class="modal fade" id="editStatusModal{{ order.order_id }}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-danger text-white">
-                  <h5 class="modal-title">
-                    <i class="bi bi-x-circle me-2"></i>Decline Order #ORD-{{ order.order_id }}
-                  </h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ url_for('admin.decline_order', order_id=order.order_id) }}" method="POST">
-                  <div class="modal-body">
-                    <p class="text-muted">Please provide a reason for declining this order. This will be visible to the
-                      customer.</p>
-                    <div class="mb-3">
-                      <label class="form-label fw-bold">Decline Reason</label>
-                      <textarea name="decline_reason" class="form-control" rows="3"
-                        placeholder="Enter reason for declining this order..." required></textarea>
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header" style="background-color: var(--accent-brown); color: white;">
+                        <h5 class="modal-title">
+                            <i class="bi bi-pencil-square me-2"></i>Edit Order Status #ORD-{{ order.order_id }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">
-                      <i class="bi bi-x-lg me-1"></i>Decline Order
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-          {% endif %}
+                    <form action="{{ url_for('admin.update_order_status', order_id=order.order_id) }}" method="POST">
+                        <div class="modal-body">
+                            <p class="text-muted mb-3">Change the status of this order. Stock will be automatically
+                                adjusted when changing to/from Declined status.</p>
 
-          {% else %}
-          <tr>
-            <td colspan="8" class="text-center py-5">
-              <i class="bi bi-inbox display-4 text-muted d-block mb-3"></i>
-              <p class="text-muted mb-0">No orders found</p>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Current Status</label>
+                                <div>
+                                    {% if order.status == 'Pending' %}
+                                    <span class="badge bg-warning text-dark px-3 py-2">Pending</span>
+                                    {% elif order.status == 'Approved' %}
+                                    <span class="badge bg-success px-3 py-2">Approved</span>
+                                    {% elif order.status == 'Shipped' %}
+                                    <span class="badge bg-info px-3 py-2">Shipped</span>
+                                    {% elif order.status == 'Delivered' %}
+                                    <span class="badge bg-primary px-3 py-2">Delivered</span>
+                                    {% elif order.status == 'Declined' %}
+                                    <span class="badge bg-danger px-3 py-2">Declined</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="status{{ order.order_id }}" class="form-label fw-bold">New Status</label>
+                                <select name="status" id="status{{ order.order_id }}" class="form-select" required>
+                                    <option value="">-- Select Status --</option>
+                                    <option value="Pending" {% if order.status=='Pending' %}selected{% endif %}>⏳
+                                        Pending</option>
+                                    <option value="Approved" {% if order.status=='Approved' %}selected{% endif %}>✓
+                                        Approved</option>
+                                    <option value="Shipped" {% if order.status=='Shipped' %}selected{% endif %}>🚚
+                                        Shipped</option>
+                                    <option value="Delivered" {% if order.status=='Delivered' %}selected{% endif %}>✓✓
+                                        Delivered</option>
+                                    <option value="Declined" {% if order.status=='Declined' %}selected{% endif %}>✗
+                                        Declined</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Update Status
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details Modal -->
+        <div class="modal fade" id="detailsModal{{ order.order_id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="bi bi-receipt me-2"></i>Order Details #ORD-{{ order.order_id }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0 h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-muted text-uppercase small fw-bold mb-3">
+                                            <i class="bi bi-person me-1"></i>Customer Information
+                                        </h6>
+                                        <p class="mb-1 fw-bold">{{ order.customer_name }}</p>
+                                        <p class="mb-1 text-muted small">{{ order.customer_email }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0 h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-muted text-uppercase small fw-bold mb-3">
+                                            <i class="bi bi-geo-alt me-1"></i>Shipping Address
+                                        </h6>
+                                        <p class="mb-1 fw-bold">{{ order.name if order.name else order.customer_name }}
+                                        </p>
+                                        <p class="mb-0 text-muted small">{{ order.address if order.address else 'No
+                                            address provided' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">
+                            <i class="bi bi-bag me-1"></i>Order Items
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Price</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if order_details[order.order_id] %}
+                                    {% for item in order_details[order.order_id] %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% set clean_img = item.image.split('\\')[-1].split('/')[-1] if
+                                                item.image else 'default-book.png' %}
+                                                <img src="{{ url_for('static', filename='img/' + clean_img) }}"
+                                                    class="rounded me-2"
+                                                    style="width: 40px; height: 55px; object-fit: cover;">
+                                                <span>{{ item.title }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">{{ item.quantity }}</td>
+                                        <td class="text-end">₱{{ "%.2f"|format(item.price) }}</td>
+                                        <td class="text-end fw-bold">₱{{ "%.2f"|format(item.price * item.quantity) }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td class="text-end fw-bold text-success">₱{{ "%.2f"|format(order.total_amount)
+                                            }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted me-2">Payment Method:</span>
+                                    <span
+                                        class="badge {{ 'bg-success' if order.payment_method == 'Online' else 'bg-secondary' }}">
+                                        {{ order.payment_method }}
+                                    </span>
+                                    {% if order.payment_proof %}
+                                    <a href="{{ url_for('static', filename='img/payments/' + order.payment_proof) }}"
+                                        target="_blank" class="btn btn-sm btn-outline-info ms-2">
+                                        <i class="bi bi-image me-1"></i>View Proof
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <span class="text-muted me-2">Status:</span>
+                                {% if order.status == 'Pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif order.status == 'Approved' %}
+                                <span class="badge bg-success">Approved</span>
+                                {% elif order.status == 'Shipped' %}
+                                <span class="badge bg-info">Shipped</span>
+                                {% elif order.status == 'Delivered' %}
+                                <span class="badge bg-primary">Delivered</span>
+                                {% elif order.status == 'Declined' %}
+                                <span class="badge bg-danger">Declined</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if order.status == 'Declined' and order.decline_reason %}
+                        <div class="alert alert-danger mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Decline Reason:</strong> {{ order.decline_reason }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decline Modal -->
+        {% if order.status == 'Pending' %}
+        <div class="modal fade" id="declineModal{{ order.order_id }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">
+                            <i class="bi bi-x-circle me-2"></i>Decline Order #ORD-{{ order.order_id }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ url_for('admin.decline_order', order_id=order.order_id) }}" method="POST">
+                        <div class="modal-body">
+                            <p class="text-muted">Please provide a reason for declining this order. This will be visible
+                                to the customer.</p>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Decline Reason</label>
+                                <textarea name="decline_reason" class="form-control" rows="3"
+                                    placeholder="Enter reason for declining this order..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-lg me-1"></i>Decline Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- No Orders Found -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox display-4 text-muted d-block mb-3"></i>
+                <p class="text-muted mb-0">No orders found</p>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-  </div>
 </div>
 
 <style>
-  .nav-pills .nav-link {
-    color: #6c757d;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    margin-right: 0.25rem;
-  }
+    .nav-pills .nav-link {
+        color: #6c757d;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        margin-right: 0.25rem;
+    }
 
-  .nav-pills .nav-link.active {
-    background-color: #4b0082;
-    color: white;
-  }
+    .nav-pills .nav-link.active {
+        background-color: var(--accent-brown, #8B7355);
+        color: white;
+    }
 
-  .nav-pills .nav-link:hover:not(.active) {
-    background-color: #f8f9fa;
-  }
+    .nav-pills .nav-link:hover:not(.active) {
+        background-color: #f8f9fa;
+    }
 
-  .table>tbody>tr:hover {
-    background-color: #f8f9fb;
-  }
+    .order-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
 
-  .btn-group .btn {
-    border-radius: 0.375rem !important;
-    margin-left: 0.25rem;
-  }
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+        border-left-color: var(--accent-brown, #8B7355);
+    }
+
+    .order-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #e8e4de, #f5f1eb);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .order-avatar i {
+        font-size: 1.5rem;
+        color: var(--accent-brown, #8B7355);
+    }
+
+    .order-id {
+        font-size: 0.85rem;
+    }
+
+    .btn-group .btn {
+        border-radius: 0.375rem !important;
+        margin-left: 0.25rem;
+    }
+
+    .orders-list .badge {
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .order-card .row {
+            gap: 1rem;
+        }
+
+        .order-card .col-md-3.text-end {
+            text-align: start !important;
+        }
+    }
+
+    /* Product Thumbnails */
+    .product-thumbnails {
+        flex-shrink: 0;
+    }
+
+    .product-thumb {
+        width: 50px;
+        height: 65px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-left: -15px;
+        transition: all 0.2s ease;
+    }
+
+    .product-thumb:first-child {
+        margin-left: 0;
+    }
+
+    .product-thumb:hover {
+        transform: scale(1.1);
+        z-index: 10;
+        position: relative;
+    }
+
+    .product-thumb-more {
+        width: 50px;
+        height: 65px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, var(--accent-brown, #8B7355), #a68b5b);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-left: -15px;
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 </style>
 {% endblock %}

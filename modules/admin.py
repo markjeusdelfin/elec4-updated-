@@ -250,6 +250,61 @@ def deliver_order(order_id):
     return redirect(url_for('admin.process_orders'))
 
 
+@admin_bp.route('/order/<int:order_id>/update_status', methods=['POST'])
+@admin_required
+def update_order_status(order_id):
+    """Update order status to any valid status"""
+    new_status = request.form.get('status')
+    valid_statuses = ['Pending', 'Approved', 'Shipped', 'Delivered', 'Declined']
+    
+    if new_status not in valid_statuses:
+        flash("Invalid status selected.", "danger")
+        return redirect(url_for('admin.process_orders'))
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get current order status
+        cursor.execute("SELECT status FROM orders WHERE order_id = %s", (order_id,))
+        order = cursor.fetchone()
+        
+        if not order:
+            flash(f"Order #{order_id} not found.", "danger")
+            return redirect(url_for('admin.process_orders'))
+        
+        old_status = order['status']
+        
+        # If changing FROM Declined to another status, we need to deduct stock again
+        if old_status == 'Declined' and new_status != 'Declined':
+            cursor.execute("SELECT product_id, quantity FROM order_items WHERE order_id = %s", (order_id,))
+            items = cursor.fetchall()
+            for item in items:
+                cursor.execute("UPDATE products SET stock = stock - %s WHERE product_id = %s", 
+                              (item['quantity'], item['product_id']))
+        
+        # If changing TO Declined from another status, restore stock
+        if old_status != 'Declined' and new_status == 'Declined':
+            cursor.execute("SELECT product_id, quantity FROM order_items WHERE order_id = %s", (order_id,))
+            items = cursor.fetchall()
+            for item in items:
+                cursor.execute("UPDATE products SET stock = stock + %s WHERE product_id = %s", 
+                              (item['quantity'], item['product_id']))
+        
+        # Update the status
+        cursor.execute("UPDATE orders SET status = %s WHERE order_id = %s", (new_status, order_id))
+        conn.commit()
+        flash(f"Order #{order_id} status updated to {new_status}.", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error updating order status: {str(e)}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('admin.process_orders'))
+
+
 # ==================================================
 # USERS MANAGEMENT (Search + Filter)
 # ==================================================
