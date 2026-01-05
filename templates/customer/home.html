@@ -196,10 +196,6 @@ endblock %} {% block content %}
   <div class="d-flex gap-3 overflow-auto py-4 no-scrollbar">
     {% for auth in authors %}
     <a href="{{ url_for('customer.home', author=auth.author) }}" class="author-badge d-flex align-items-center gap-3">
-      <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
-        style="width: 30px; height: 30px">
-        <i class="fas fa-user text-muted small"></i>
-      </div>
       <span>{{ auth.author }}</span>
     </a>
     {% endfor %}

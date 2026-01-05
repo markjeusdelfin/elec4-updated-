@@ -47,11 +47,11 @@
     <div class="col-md-8">
       <div class="card mb-4 border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8B7355, #A68B5B);">
         <div class="card-body py-4 d-flex flex-column justify-content-center text-white">
-          <h5 class="opacity-75">Total Revenue ({{ period.capitalize() }})</h5>
-          <h1 class="display-3 fw-bold mb-0">
+          <h5 class="opacity-100">Total Revenue ({{ period.capitalize() }})</h5>
+          <h1 class="display-3 fw-bold mb-0 text-white">
             ₱{{ "%.2f"|format(total_sales) }}
           </h1>
-          <small class="mt-2 opacity-50">Generated on {{ now.strftime('%Y-%m-%d %H:%M') if now else 'Today' }}</small>
+          <small class="mt-2 opacity-75 text-black fw-bold">Generated on {{ now.strftime('%Y-%m-%d %H:%M') if now else 'Today' }}</small>
         </div>
       </div>
     </div>

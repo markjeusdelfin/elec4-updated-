@@ -70,9 +70,6 @@
             padding: 0 2rem;
         }
 
-        /* ============================================
-       NAVBAR
-    ============================================ */
         header {
             background-color: var(--white);
             border-bottom: 1px solid var(--border-light);
@@ -143,9 +140,6 @@
             box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
         }
 
-        /* ============================================
-       HERO SECTION
-    ============================================ */
         .hero {
             padding: 5rem 0 3rem;
         }
@@ -280,9 +274,6 @@
             color: var(--text-muted);
         }
 
-        /* ============================================
-       FEATURED SECTION
-    ============================================ */
         .section {
             padding: 4rem 0;
         }
@@ -365,9 +356,7 @@
             line-height: 1.5;
         }
 
-        /* ============================================
-       WHY CHOOSE US
-    ============================================ */
+
         .features-section {
             background-color: var(--white);
             border-radius: var(--radius-lg);
@@ -414,9 +403,6 @@
             line-height: 1.6;
         }
 
-        /* ============================================
-       FOOTER
-    ============================================ */
         footer {
             background-color: var(--white);
             border-top: 1px solid var(--border-light);
@@ -436,9 +422,6 @@
             text-decoration: none;
         }
 
-        /* ============================================
-       SCROLLBAR
-    ============================================ */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -456,9 +439,6 @@
             background: var(--accent-brown);
         }
 
-        /* ============================================
-       RESPONSIVE
-    ============================================ */
         @media (max-width: 992px) {
             .hero-grid {
                 grid-template-columns: 1fr;
@@ -511,7 +491,7 @@
 
 <body>
 
-    <!-- HEADER -->
+
     <header id="mainHeader">
         <div class="container nav">
             <a href="/" class="logo">
@@ -525,7 +505,6 @@
         </div>
     </header>
 
-    <!-- HERO SECTION -->
     <section class="hero container">
         <div class="hero-grid">
             <div>
@@ -570,7 +549,6 @@
         </div>
     </section>
 
-    <!-- FEATURED BOOKS -->
     <section class="section container">
         <div class="section-header">
             <h2 class="section-title">Featured Books</h2>
@@ -581,46 +559,45 @@
 
         <div class="book-grid">
             <div class="book-card">
-                <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400"
-                    alt="Introduction to Algorithms">
+                <img src="static/img/book19.jpg"
+                    alt="Wanderlust">
                 <div class="book-info">
-                    <h4>Introduction to Algorithms</h4>
-                    <span class="price">₱2,350.00</span>
-                    <p class="review">"This book really helped me understand complex concepts easily!" - Alex</p>
+                    <h4>Wanderlust</h4>
+                    <span class="price">₱500.00</span>
+                    <p class="review">"This book really kicked my nerves about Adam" - Mark</p>
                 </div>
             </div>
 
             <div class="book-card">
-                <img src="https://images.unsplash.com/photo-1555529669-413811fbf24f?w=400" alt="Clean Code">
+                <img src="static/img/book16.jpg" alt="Thrive">
                 <div class="book-info">
-                    <h4>Clean Code</h4>
-                    <span class="price">₱1,950.00</span>
-                    <p class="review">"A must-have for anyone serious about coding." - Jamie</p>
+                    <h4>Thrive</h4>
+                    <span class="price">₱400.00</span>
+                    <p class="review">"A must-have for anyone to dive into science fiction." - Ronnie Boy</p>
                 </div>
             </div>
 
             <div class="book-card">
-                <img src="https://images.unsplash.com/photo-1581092795363-3a031c97efb5?w=400" alt="Design Patterns">
+                <img src="static/img/book14.jpg" alt="Vision">
                 <div class="book-info">
-                    <h4>Design Patterns</h4>
-                    <span class="price">₱2,500.00</span>
-                    <p class="review">"Excellent reference book for software architecture." - Maria</p>
+                    <h4>Vision</h4>
+                    <span class="price">₱300.00</span>
+                    <p class="review">"Excellent romance book for sweet thrills." - Heinz</p>
                 </div>
             </div>
 
             <div class="book-card">
-                <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400"
-                    alt="Artificial Intelligence">
+                <img src="static/img/book21.jpg"
+                    alt="Just Fly">
                 <div class="book-info">
-                    <h4>Artificial Intelligence</h4>
-                    <span class="price">₱3,000.00</span>
-                    <p class="review">"Helped me ace my AI course!" - Daniel</p>
+                    <h4>Just Fly</h4>
+                    <span class="price">₱250.00</span>
+                    <p class="review">"It's like my random dream" - Vince</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- WHY CHOOSE US -->
     <div class="container">
         <section class="features-section">
             <h2 class="section-title" style="text-align: center;">Why Choose Paper Haven?</h2>
@@ -654,7 +631,6 @@
         </section>
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <div class="container">
             <p>&copy; 2025 <strong>Paper Haven</strong>. Curated books for every reader.</p>
@@ -663,7 +639,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Add scroll effect to header
         window.addEventListener('scroll', function () {
             const header = document.getElementById('mainHeader');
             if (window.scrollY > 50) {

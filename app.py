@@ -7,27 +7,24 @@ from modules.category import category_bp
 import os
 
 app = Flask(__name__)
-app.secret_key = "secret123"  # Change this in production!
+app.secret_key = "secret123" 
 
 @app.route('/')
 def landing():
     return render_template('index.html')
 
 
-# File Upload Config
 app.config['UPLOAD_FOLDER'] = 'static/img'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Register Blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp, url_prefix="/admin")
 app.register_blueprint(customer_bp, url_prefix="/customer")
 app.register_blueprint(product_bp, url_prefix="/product")
 app.register_blueprint(category_bp, url_prefix="/category")
 
-# Prevent cached pages after logout
 
 
 @app.after_request

@@ -1,5 +1,15 @@
 {% extends "layout/base_user.html" %} 
 {% block content %}
+
+<style>
+
+    .price-tag {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--accent-brown);
+    font-family: "Inter", sans-serif;
+  }
+</style>
 <div class="container mt-5">
   <div class="card shadow-sm mb-5">
     <div class="card-body">
@@ -90,7 +100,7 @@
     {% endif %}
   </div>
 
-  <h5 class="text-primary mb-2">₱{{ "%.2f"|format(product.price) }}</h5>
+  <h5 class="price-tag">₱{{ "%.2f"|format(product.price) }}</h5>
   
   <form class="ajax-cart-form" method="POST" action="{{ url_for('customer.add_to_cart') }}" style="position: relative; z-index: 5">
     <input type="hidden" name="product_id" value="{{ product.product_id }}" />
@@ -101,7 +111,7 @@
              value="1" min="1" max="{{ product.stock }}" {% if product.stock <= 0 %}disabled{% endif %} required>
     </div>
 
-    <button type="submit" class="btn {% if product.stock > 0 %}btn-success{% else %}btn-secondary{% endif %} btn-sm w-100" {% if product.stock <= 0 %}disabled{% endif %}>
+    <button type="submit" class="color: var(--accent-brown) btn {% if product.stock > 0 %}btn-success{% else %}btn-secondary{% endif %} btn-sm w-100" {% if product.stock <= 0 %}disabled{% endif %}>
       <i class="bi bi-cart-plus"></i> 
       {% if product.stock > 0 %}Add to Cart{% else %}Sold Out{% endif %}
     </button>
